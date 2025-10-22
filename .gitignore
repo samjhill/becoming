@@ -1,0 +1,29 @@
+# Audio and rendered files
+*.aif
+*.aiff
+*.wav
+*.caf
+*.mp3
+*.m4a
+*.bwf
+*.rex
+*.sd2
+*.logicx/
+*.logic/
+*.waveform/
+
+# Logic's hidden directories
+*/Audio Files/
+*/Freeze Files/
+*/Project File Backups/
+*/Alternatives/
+
+# Bounces (ignore rough and refs)
+bounces/rough-mixes/
+bounces/reference-mixes/
+
+# MacOS metadata
+.DS_Store
+
+# Ignore external drives or cache dirs
+*.external
