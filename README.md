@@ -2,6 +2,8 @@
 
 A professional music production workflow system with version control, organized project structure, and intelligent journaling tools.
 
+**GitHub Repository**: [samjhill/becoming](https://github.com/samjhill/becoming)
+
 ## 🚀 Quick Start
 
 ### 1. Start the Production Journal Server
