@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Becoming Album - Production Tools</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 3em;
+            font-weight: 300;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.2em;
+        }
+
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .tool-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            border-color: #667eea;
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.2);
+        }
+
+        .tool-icon {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        .tool-title {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .tool-description {
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .tool-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .tool-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .project-info {
+            margin-top: 40px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            text-align: left;
+        }
+
+        .project-info h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .project-info p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .folder-structure {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9em;
+            margin-top: 15px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎧 Becoming Album</h1>
+        <p class="subtitle">Production Tools & Workflow</p>
+        
+        <div class="tool-grid">
+            <div class="tool-card">
+                <div class="tool-icon">📝</div>
+                <div class="tool-title">Production Journal</div>
+                <div class="tool-description">
+                    Keep track of your creative process, session notes, and ideas while making music. Auto-exports to markdown format.
+                </div>
+                <a href="src/ui/journal-ui.html" class="tool-button">Open Journal</a>
+            </div>
+            
+            <div class="tool-card">
+                <div class="tool-icon">📁</div>
+                <div class="tool-title">Project Files</div>
+                <div class="tool-description">
+                    Access your Logic Pro projects, stems, bounces, and documentation files.
+                </div>
+                <a href="docs/" class="tool-button">View Docs</a>
+            </div>
+        </div>
+
+        <div class="project-info">
+            <h3>📋 Project Structure</h3>
+            <p>This album project is organized with version control and Git LFS for professional music production workflow.</p>
+            
+            <div class="folder-structure">
+becoming/
+├── src/
+│   ├── ui/           # Web interfaces
+│   └── scripts/      # Python utilities
+├── docs/             # Documentation & notes
+├── logic-projects/   # Logic Pro sessions
+├── stems/           # Exported stems (Git LFS)
+├── bounces/         # Mixes & masters
+├── samples/         # Custom samples
+└── .gitattributes   # Git LFS config
+            </div>
+        </div>
+    </div>
+</body>
+</html>

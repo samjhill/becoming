@@ -27,3 +27,13 @@ bounces/reference-mixes/
 
 # Ignore external drives or cache dirs
 *.external
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Development files
+*.log
+.DS_Store

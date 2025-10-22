@@ -1,0 +1,27 @@
+{
+  "name": "becoming-album",
+  "version": "1.0.0",
+  "description": "Production tools and workflow for the Becoming album project",
+  "main": "index.html",
+  "scripts": {
+    "start": "python3 -m http.server 8080",
+    "serve": "python3 -m http.server 8080",
+    "export-journal": "python3 src/scripts/export-journal.py"
+  },
+  "keywords": [
+    "music",
+    "production",
+    "album",
+    "logic-pro",
+    "git-lfs",
+    "workflow"
+  ],
+  "author": "Sam Hill",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "local"
+  },
+  "devDependencies": {},
+  "dependencies": {}
+}
