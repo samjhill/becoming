@@ -23,6 +23,13 @@ Open your browser and navigate to: **http://localhost:8082**
 - **Rich Metadata**: Track BPM, key, effects, mood, inspiration, and more
 - **Git Integration**: One-click commit and push to GitHub for automatic version control
 
+### 🎵 Album Management System
+- **Song Catalog**: Track all songs in your album with status management
+- **Progress Dashboard**: Visual progress tracking for individual songs and album completion
+- **Status Tracking**: Manage song status (draft → production → mixing → mastering → done)
+- **Metadata Management**: Store song details (title, key, BPM, notes, creation date)
+- **Completion Statistics**: Real-time album completion percentage and progress metrics
+
 ### 🗂️ Organized Project Structure
 - **Logic Pro Projects**: Organized by track in `logic-projects/`
 - **Stems & Bounces**: Properly categorized in `stems/` and `bounces/`
@@ -114,7 +121,13 @@ becoming/
 1. Navigate to **Read Entries** from the homepage
 2. Browse your entries by date
 3. Click any entry to read the full formatted content
-4. Use the refresh button to load new entries
+
+### Managing Your Album
+1. Navigate to **Album Overview** from the homepage
+2. View your album progress dashboard with completion statistics
+3. Add new songs with metadata (title, key, BPM, status, notes)
+4. Track song status through the production pipeline
+5. Monitor overall album completion percentage
 
 ### Project Organization
 - **Logic Projects**: Save your `.logicx` files in `logic-projects/[track-name]/`
