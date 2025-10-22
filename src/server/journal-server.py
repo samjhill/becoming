@@ -25,6 +25,8 @@ class JournalHandler(BaseHTTPRequestHandler):
         """Handle POST requests for saving journal entries and Git operations"""
         if self.path == '/save-entry':
             self.save_journal_entry()
+        elif self.path == '/api/songs':
+            self.save_song()
         elif self.path == '/api/git-commit':
             self.git_commit_and_push()
         else:
@@ -40,10 +42,14 @@ class JournalHandler(BaseHTTPRequestHandler):
             self.serve_add_entry_page()
         elif self.path == '/read-entries':
             self.serve_read_entries_page()
+        elif self.path == '/album-overview':
+            self.serve_album_overview_page()
         elif self.path == '/api/journal-files':
             self.list_journal_files()
         elif self.path.startswith('/api/journal-file/'):
             self.get_journal_file()
+        elif self.path == '/api/songs':
+            self.get_songs()
         elif self.path == '/api/git-commit':
             self.git_commit_and_push()
         else:
@@ -111,6 +117,19 @@ class JournalHandler(BaseHTTPRequestHandler):
             self.wfile.write(content.encode())
         except FileNotFoundError:
             self.send_error(404, "read-entries.html not found")
+
+    def serve_album_overview_page(self):
+        """Serve the album overview page"""
+        try:
+            with open('src/ui/album-overview.html', 'r') as f:
+                content = f.read()
+            self.send_response(200)
+            self.send_header('Content-type', 'text/html')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(content.encode())
+        except FileNotFoundError:
+            self.send_error(404, "Album overview page not found")
 
     def save_journal_entry(self):
         """Save a journal entry to the docs folder"""
@@ -384,6 +403,104 @@ class JournalHandler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps(error_response).encode())
             
             print(f"Git operation error: {e}")
+
+    def get_songs(self):
+        """Get all songs from the songs.json file"""
+        try:
+            songs_file = 'docs/songs.json'
+            if os.path.exists(songs_file):
+                with open(songs_file, 'r') as f:
+                    songs = json.load(f)
+            else:
+                songs = []
+            
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(json.dumps(songs).encode())
+            
+        except Exception as e:
+            error_response = {'error': f'Failed to load songs: {str(e)}'}
+            self.send_response(500)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(json.dumps(error_response).encode())
+
+    def save_song(self):
+        """Save a new song to the songs.json file"""
+        try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            song_data = json.loads(post_data.decode('utf-8'))
+            
+            # Create songs directory if it doesn't exist
+            os.makedirs('docs', exist_ok=True)
+            
+            songs_file = 'docs/songs.json'
+            if os.path.exists(songs_file):
+                with open(songs_file, 'r') as f:
+                    songs = json.load(f)
+            else:
+                songs = []
+            
+            # Add new song with ID and timestamps
+            new_song = {
+                'id': str(int(time.time() * 1000)),
+                'title': song_data.get('songTitle', ''),
+                'key': song_data.get('songKey', ''),
+                'bpm': int(song_data.get('songBpm', 0)) if song_data.get('songBpm') else None,
+                'status': song_data.get('songStatus', 'draft'),
+                'notes': song_data.get('songNotes', ''),
+                'progress': self.get_default_progress(song_data.get('songStatus', 'draft')),
+                'createdAt': datetime.now().isoformat(),
+                'updatedAt': datetime.now().isoformat()
+            }
+            
+            songs.append(new_song)
+            
+            # Save updated songs list
+            with open(songs_file, 'w') as f:
+                json.dump(songs, f, indent=2)
+            
+            response = {
+                'success': True,
+                'message': f'Song "{new_song["title"]}" added successfully',
+                'song': new_song
+            }
+            
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(json.dumps(response).encode())
+            
+            print(f"Song saved: {new_song['title']} ({new_song['status']})")
+            
+        except Exception as e:
+            error_response = {
+                'success': False,
+                'message': f'Failed to save song: {str(e)}'
+            }
+            self.send_response(500)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(json.dumps(error_response).encode())
+            
+            print(f"Error saving song: {e}")
+
+    def get_default_progress(self, status):
+        """Get default progress percentage based on status"""
+        progress_map = {
+            'draft': 10,
+            'production': 30,
+            'mixing': 70,
+            'mastering': 90,
+            'done': 100
+        }
+        return progress_map.get(status, 0)
 
 def start_server(port=8082):
     """Start the journal server"""

@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Album Overview - Becoming</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .songs-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .songs-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .songs-header h2 {
+            color: #333;
+        }
+
+        .add-song-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background 0.3s ease;
+        }
+
+        .add-song-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .song-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .song-card {
+            border: 2px solid #f0f0f0;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .song-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .song-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .song-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .status-draft { background: #ffeaa7; color: #d63031; }
+        .status-production { background: #74b9ff; color: white; }
+        .status-mixing { background: #fd79a8; color: white; }
+        .status-mastering { background: #55a3ff; color: white; }
+        .status-done { background: #00b894; color: white; }
+
+        .song-progress {
+            margin-top: 15px;
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+        }
+
+        .btn-git {
+            background: #24292e;
+            color: white;
+        }
+
+        .btn-git:hover {
+            background: #1a1e22;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 80%;
+            max-width: 500px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #f0f0f0;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .status-message {
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .song-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎵 Becoming Album</h1>
+            <p>Track your progress and manage your songs</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalSongs">0</div>
+                <div class="stat-label">Total Songs</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="completedSongs">0</div>
+                <div class="stat-label">Completed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="inProgressSongs">0</div>
+                <div class="stat-label">In Progress</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="albumProgress">0%</div>
+                <div class="stat-label">Album Progress</div>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="albumProgressBar" style="width: 0%"></div>
+        </div>
+
+        <div class="songs-section">
+            <div class="songs-header">
+                <h2>🎼 Song Catalog</h2>
+                <button class="add-song-btn" onclick="openAddSongModal()">+ Add Song</button>
+            </div>
+            <div class="song-grid" id="songGrid">
+                <!-- Songs will be loaded here -->
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-primary" onclick="refreshData()">🔄 Refresh</button>
+            <button class="btn btn-git" onclick="commitAndPush()">💾 Commit & Push</button>
+        </div>
+    </div>
+
+    <!-- Add Song Modal -->
+    <div id="addSongModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAddSongModal()">&times;</span>
+            <h2>Add New Song</h2>
+            <form id="addSongForm">
+                <div class="form-group">
+                    <label for="songTitle">Song Title:</label>
+                    <input type="text" id="songTitle" name="songTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="songKey">Key:</label>
+                    <input type="text" id="songKey" name="songKey" placeholder="e.g., C Major">
+                </div>
+                <div class="form-group">
+                    <label for="songBpm">BPM:</label>
+                    <input type="number" id="songBpm" name="songBpm" placeholder="e.g., 120">
+                </div>
+                <div class="form-group">
+                    <label for="songStatus">Status:</label>
+                    <select id="songStatus" name="songStatus">
+                        <option value="draft">Draft</option>
+                        <option value="production">Production</option>
+                        <option value="mixing">Mixing</option>
+                        <option value="mastering">Mastering</option>
+                        <option value="done">Done</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="songNotes">Notes:</label>
+                    <textarea id="songNotes" name="songNotes" rows="3" placeholder="Initial ideas, concepts, or notes..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Song</button>
+            </form>
+            <div id="statusMessage"></div>
+        </div>
+    </div>
+
+    <script>
+        let songs = [];
+
+        // Load songs on page load
+        window.onload = function() {
+            loadSongs();
+        };
+
+        function loadSongs() {
+            fetch('http://localhost:8082/api/songs')
+                .then(response => response.json())
+                .then(data => {
+                    songs = data;
+                    renderSongs();
+                    updateStats();
+                })
+                .catch(error => {
+                    console.error('Error loading songs:', error);
+                    // Fallback to localStorage for now
+                    const savedSongs = localStorage.getItem('becoming-songs');
+                    if (savedSongs) {
+                        songs = JSON.parse(savedSongs);
+                        renderSongs();
+                        updateStats();
+                    }
+                });
+        }
+
+        function renderSongs() {
+            const songGrid = document.getElementById('songGrid');
+            if (songs.length === 0) {
+                songGrid.innerHTML = '<p style="text-align: center; color: #666; grid-column: 1 / -1;">No songs added yet. Click "Add Song" to get started!</p>';
+                return;
+            }
+
+            songGrid.innerHTML = songs.map(song => `
+                <div class="song-card" onclick="editSong('${song.id}')">
+                    <div class="song-title">${song.title}</div>
+                    <div class="song-meta">
+                        <span>${song.key || 'No key'}</span>
+                        <span>${song.bpm || 'No BPM'}</span>
+                    </div>
+                    <div class="status-badge status-${song.status}">${song.status}</div>
+                    <div class="song-progress">
+                        <div class="progress-text">
+                            <span>Progress</span>
+                            <span>${song.progress || 0}%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${song.progress || 0}%"></div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateStats() {
+            const totalSongs = songs.length;
+            const completedSongs = songs.filter(song => song.status === 'done').length;
+            const inProgressSongs = songs.filter(song => song.status !== 'done' && song.status !== 'draft').length;
+            const albumProgress = totalSongs > 0 ? Math.round((completedSongs / totalSongs) * 100) : 0;
+
+            document.getElementById('totalSongs').textContent = totalSongs;
+            document.getElementById('completedSongs').textContent = completedSongs;
+            document.getElementById('inProgressSongs').textContent = inProgressSongs;
+            document.getElementById('albumProgress').textContent = albumProgress + '%';
+            document.getElementById('albumProgressBar').style.width = albumProgress + '%';
+        }
+
+        function openAddSongModal() {
+            document.getElementById('addSongModal').style.display = 'block';
+        }
+
+        function closeAddSongModal() {
+            document.getElementById('addSongModal').style.display = 'none';
+            document.getElementById('addSongForm').reset();
+            document.getElementById('statusMessage').innerHTML = '';
+        }
+
+        function addSong(songData) {
+            fetch('http://localhost:8082/api/songs', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(songData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadSongs(); // Reload songs from server
+                    closeAddSongModal();
+                    showStatus('Song added successfully!', 'success');
+                } else {
+                    showStatus(`Error: ${data.message}`, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error adding song:', error);
+                showStatus('Error connecting to server', 'error');
+            });
+        }
+
+        function getDefaultProgress(status) {
+            const progressMap = {
+                'draft': 10,
+                'production': 30,
+                'mixing': 70,
+                'mastering': 90,
+                'done': 100
+            };
+            return progressMap[status] || 0;
+        }
+
+        function editSong(songId) {
+            // For now, just show an alert. Later we'll implement full editing
+            const song = songs.find(s => s.id === songId);
+            if (song) {
+                alert(`Edit ${song.title}\n\nThis will open a full editing interface in the next version.`);
+            }
+        }
+
+        function refreshData() {
+            loadSongs();
+            showStatus('Data refreshed successfully!', 'success');
+        }
+
+        function commitAndPush() {
+            fetch('http://localhost:8082/api/git-commit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showStatus(`✅ ${data.message}`, 'success');
+                } else {
+                    showStatus(`❌ ${data.message}`, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showStatus('❌ Error connecting to server for Git operations.', 'error');
+            });
+        }
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.innerHTML = `<div class="status-message status-${type}">${message}</div>`;
+            setTimeout(() => {
+                statusDiv.innerHTML = '';
+            }, 3000);
+        }
+
+        // Form submission
+        document.getElementById('addSongForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const songData = Object.fromEntries(formData.entries());
+            addSong(songData);
+            showStatus('Song added successfully!', 'success');
+        });
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('addSongModal');
+            if (event.target === modal) {
+                closeAddSongModal();
+            }
+        }
+    </script>
+</body>
+</html>
