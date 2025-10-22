@@ -1,0 +1,328 @@
+#!/usr/bin/env python3
+"""
+Production Journal Server
+Handles saving journal entries directly to the docs folder
+"""
+
+import os
+import json
+from datetime import datetime
+from http.server import HTTPServer, BaseHTTPRequestHandler
+from urllib.parse import urlparse, parse_qs
+import threading
+import webbrowser
+
+class JournalHandler(BaseHTTPRequestHandler):
+    def do_OPTIONS(self):
+        """Handle CORS preflight requests"""
+        self.send_response(200)
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.end_headers()
+
+    def do_POST(self):
+        """Handle POST requests for saving journal entries"""
+        if self.path == '/save-entry':
+            self.save_journal_entry()
+        else:
+            self.send_error(404, "Not Found")
+
+    def do_GET(self):
+        """Handle GET requests"""
+        if self.path == '/':
+            self.serve_ui()
+        elif self.path.startswith('/src/ui/'):
+            self.serve_ui_file()
+        elif self.path == '/add-entry':
+            self.serve_add_entry_page()
+        elif self.path == '/read-entries':
+            self.serve_read_entries_page()
+        elif self.path == '/api/journal-files':
+            self.list_journal_files()
+        elif self.path.startswith('/api/journal-file/'):
+            self.get_journal_file()
+        else:
+            self.send_error(404, "Not Found")
+
+    def serve_ui(self):
+        """Serve the main UI page"""
+        try:
+            with open('index.html', 'r') as f:
+                content = f.read()
+            self.send_response(200)
+            self.send_header('Content-type', 'text/html')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(content.encode())
+        except FileNotFoundError:
+            self.send_error(404, "index.html not found")
+
+    def serve_ui_file(self):
+        """Serve UI files"""
+        try:
+            file_path = self.path[1:]  # Remove leading slash
+            if file_path.endswith('.html'):
+                content_type = 'text/html'
+            elif file_path.endswith('.css'):
+                content_type = 'text/css'
+            elif file_path.endswith('.js'):
+                content_type = 'application/javascript'
+            else:
+                content_type = 'text/plain'
+            
+            with open(file_path, 'r') as f:
+                content = f.read()
+            
+            self.send_response(200)
+            self.send_header('Content-type', content_type)
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(content.encode())
+        except FileNotFoundError:
+            self.send_error(404, f"File {self.path} not found")
+
+    def serve_add_entry_page(self):
+        """Serve the add entry page"""
+        try:
+            with open('src/ui/add-entry.html', 'r') as f:
+                content = f.read()
+            self.send_response(200)
+            self.send_header('Content-type', 'text/html')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(content.encode())
+        except FileNotFoundError:
+            self.send_error(404, "add-entry.html not found")
+
+    def serve_read_entries_page(self):
+        """Serve the read entries page"""
+        try:
+            with open('src/ui/read-entries.html', 'r') as f:
+                content = f.read()
+            self.send_response(200)
+            self.send_header('Content-type', 'text/html')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(content.encode())
+        except FileNotFoundError:
+            self.send_error(404, "read-entries.html not found")
+
+    def save_journal_entry(self):
+        """Save a journal entry to the docs folder"""
+        try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode('utf-8'))
+            
+            # Create organized folder structure
+            now = datetime.now()
+            year = now.strftime('%Y')
+            month = now.strftime('%m')
+            day = now.strftime('%d')
+            time_str = now.strftime('%H%M')
+            
+            # Create filename
+            track_slug = data['track'].lower().replace(' ', '-').replace(':', '').replace('_', '-')
+            filename = f"{year}-{month}-{day}-{time_str}-{track_slug}.md"
+            
+            # Create folder structure
+            journal_dir = os.path.join('docs', 'journal', year, month)
+            os.makedirs(journal_dir, exist_ok=True)
+            
+            # Create markdown content with all the form fields
+            followup_section = ""
+            if data.get('followup'):
+                followup_section = f"## Follow-up Actions\n{data['followup']}\n\n"
+
+            technical_section = "## Technical Notes\n"
+            if data.get('bpm'):
+                technical_section += f"- **BPM:** {data['bpm']}\n"
+            if data.get('key'):
+                technical_section += f"- **Key:** {data['key']}\n"
+            if data.get('effects'):
+                technical_section += f"- **Effects Used:** {data['effects']}\n"
+            if data.get('issues'):
+                technical_section += f"- **Recording Issues:** {data['issues']}\n"
+            if not any([data.get('bpm'), data.get('key'), data.get('effects'), data.get('issues')]):
+                technical_section += "- **BPM:** [Add BPM if relevant]\n"
+                technical_section += "- **Key:** [Add key if relevant]\n"
+                technical_section += "- **Effects Used:** [List any new effects or plugins]\n"
+                technical_section += "- **Recording Issues:** [Note any technical problems]\n"
+
+            creative_section = "## Creative Notes\n"
+            if data.get('mood'):
+                creative_section += f"- **Mood/Feeling:** {data['mood']}\n"
+            if data.get('inspiration'):
+                creative_section += f"- **Inspiration:** {data['inspiration']}\n"
+            if data.get('challenges'):
+                creative_section += f"- **Challenges:** {data['challenges']}\n"
+            if data.get('breakthroughs'):
+                creative_section += f"- **Breakthroughs:** {data['breakthroughs']}\n"
+            if not any([data.get('mood'), data.get('inspiration'), data.get('challenges'), data.get('breakthroughs')]):
+                creative_section += "- **Mood/Feeling:** [Describe the creative mood]\n"
+                creative_section += "- **Inspiration:** [What inspired this session]\n"
+                creative_section += "- **Challenges:** [What was difficult]\n"
+                creative_section += "- **Breakthroughs:** [What worked well]\n"
+
+            markdown_content = f"""# Production Journal Entry
+
+**Date:** {data['date']}  
+**Track:** {data['track']}  
+**Session Time:** {now.strftime('%Y-%m-%d %H:%M:%S')}
+
+## Session Notes
+{data['notes']}
+
+{followup_section}{technical_section}
+
+{creative_section}
+
+---
+*Auto-generated by Production Journal Server*
+"""
+
+            # Save the file
+            file_path = os.path.join(journal_dir, filename)
+            with open(file_path, 'w') as f:
+                f.write(markdown_content)
+            
+            # Send success response
+            response = {
+                'success': True,
+                'message': f'Entry saved to {file_path}',
+                'filename': filename,
+                'file_path': file_path
+            }
+            
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(json.dumps(response).encode())
+            
+            print(f"✅ Saved journal entry: {file_path}")
+            
+        except Exception as e:
+            error_response = {
+                'success': False,
+                'message': f'Error saving entry: {str(e)}'
+            }
+            
+            self.send_response(500)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(json.dumps(error_response).encode())
+            
+            print(f"❌ Error saving entry: {e}")
+
+    def list_journal_files(self):
+        """List all journal files in the docs/journal directory"""
+        try:
+            import glob
+            
+            # Find all markdown files in docs/journal
+            journal_pattern = os.path.join('docs', 'journal', '**', '*.md')
+            files = glob.glob(journal_pattern, recursive=True)
+            
+            # Sort by modification time (newest first)
+            files.sort(key=lambda x: os.path.getmtime(x), reverse=True)
+            
+            file_list = []
+            for file_path in files:
+                relative_path = os.path.relpath(file_path, 'docs/journal')
+                file_info = {
+                    'filename': os.path.basename(file_path),
+                    'path': relative_path,
+                    'full_path': file_path,
+                    'modified': datetime.fromtimestamp(os.path.getmtime(file_path)).isoformat()
+                }
+                file_list.append(file_info)
+            
+            response = {
+                'success': True,
+                'files': file_list
+            }
+            
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(json.dumps(response).encode())
+            
+        except Exception as e:
+            error_response = {
+                'success': False,
+                'message': f'Error listing files: {str(e)}'
+            }
+            
+            self.send_response(500)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(json.dumps(error_response).encode())
+
+    def get_journal_file(self):
+        """Get the content of a specific journal file"""
+        try:
+            # Extract filename from path
+            filename = self.path.replace('/api/journal-file/', '')
+            
+            # Find the file in docs/journal
+            journal_pattern = os.path.join('docs', 'journal', '**', filename)
+            import glob
+            files = glob.glob(journal_pattern, recursive=True)
+            
+            if not files:
+                self.send_error(404, "File not found")
+                return
+            
+            file_path = files[0]
+            
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            
+            response = {
+                'success': True,
+                'content': content,
+                'filename': filename,
+                'path': file_path
+            }
+            
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(json.dumps(response).encode())
+            
+        except Exception as e:
+            error_response = {
+                'success': False,
+                'message': f'Error reading file: {str(e)}'
+            }
+            
+            self.send_response(500)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(json.dumps(error_response).encode())
+
+def start_server(port=8082):
+    """Start the journal server"""
+    server_address = ('', port)
+    httpd = HTTPServer(server_address, JournalHandler)
+    
+    print(f"🎧 Production Journal Server starting on port {port}")
+    print(f"📝 Open http://localhost:{port} to access the journal")
+    print(f"💾 Journal entries will be saved to docs/journal/ folder")
+    print("Press Ctrl+C to stop the server")
+    
+    try:
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        print("\n🛑 Server stopped")
+        httpd.server_close()
+
+if __name__ == '__main__':
+    start_server()

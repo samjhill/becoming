@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Read Journal Entries - Production Journal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+
+        .btn-back {
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-back:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .journal-reader-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid #e9ecef;
+        }
+
+        .file-list {
+            display: grid;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .file-item {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .file-item:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+        }
+
+        .file-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .file-path {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .file-date {
+            font-size: 0.8em;
+            color: #999;
+        }
+
+        .journal-entry {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .journal-content {
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .journal-content h1, .journal-content h2, .journal-content h3 {
+            color: #667eea;
+            margin: 20px 0 10px 0;
+        }
+
+        .journal-content ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .journal-content li {
+            margin: 5px 0;
+        }
+
+        .journal-content hr {
+            border: none;
+            border-top: 2px solid #e9ecef;
+            margin: 20px 0;
+        }
+
+        .status {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-weight: 500;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-style: italic;
+        }
+
+        .refresh-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="http://localhost:8082/" class="btn-back">← Back to Home</a>
+        
+        <h1>📖 Read Journal Entries</h1>
+        
+        <div class="journal-reader-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>Your Journal Entries</h2>
+                <button class="refresh-btn" onclick="loadJournalFiles()">🔄 Refresh</button>
+            </div>
+            
+            <div id="journal-files-list">
+                <div class="loading">Loading your journal entries...</div>
+            </div>
+            <div id="journal-content"></div>
+        </div>
+
+        <div id="status"></div>
+    </div>
+
+    <script>
+        // Load journal files on page load
+        window.onload = function() {
+            loadJournalFiles();
+        };
+
+        // Journal Reader Functions
+        function loadJournalFiles() {
+            const container = document.getElementById('journal-files-list');
+            container.innerHTML = '<div class="loading">Loading your journal entries...</div>';
+            
+            fetch('http://localhost:8082/api/journal-files')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayJournalFiles(data.files);
+                    } else {
+                        showStatus(`❌ Error loading files: ${data.message}`, 'error');
+                        container.innerHTML = '<div class="loading">Error loading files</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showStatus('❌ Error connecting to server. Make sure the journal server is running.', 'error');
+                    container.innerHTML = '<div class="loading">Error connecting to server</div>';
+                });
+        }
+
+        function displayJournalFiles(files) {
+            const container = document.getElementById('journal-files-list');
+            
+            if (files.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px;">
+                        <p style="color: #6c757d; font-style: italic; margin-bottom: 20px;">No journal files found.</p>
+                        <p style="color: #999; font-size: 0.9em;">Create your first entry using the "Add New Entry" page!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <div style="margin-bottom: 20px;">
+                    <h3>📁 Your Journal Entries (${files.length} found)</h3>
+                    <p style="color: #666; font-size: 0.9em; margin: 5px 0;">Click any entry to read it</p>
+                </div>
+                <div class="file-list">
+                    ${files.map(file => `
+                        <div class="file-item" onclick="loadJournalFile('${file.filename}')">
+                            <div class="file-name">${file.filename}</div>
+                            <div class="file-path">${file.path}</div>
+                            <div class="file-date">${new Date(file.modified).toLocaleString()}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function loadJournalFile(filename) {
+            fetch(`http://localhost:8082/api/journal-file/${filename}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayJournalContent(data.content, data.filename);
+                    } else {
+                        showStatus(`❌ Error loading file: ${data.message}`, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showStatus('❌ Error loading file.', 'error');
+                });
+        }
+
+        function displayJournalContent(content, filename) {
+            const container = document.getElementById('journal-content');
+            
+            // Convert markdown to HTML (simple conversion)
+            let htmlContent = content
+                .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+                .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+                .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+                .replace(/^\*\*(.*)\*\*: (.*$)/gim, '<strong>$1:</strong> $2<br>')
+                .replace(/^- (.*$)/gim, '<li>$1</li>')
+                .replace(/^- \*\*(.*)\*\*: (.*$)/gim, '<li><strong>$1:</strong> $2</li>')
+                .replace(/\n/g, '<br>')
+                .replace(/<li>(.*?)<br>/g, '<ul><li>$1</li></ul>')
+                .replace(/<\/ul><br><ul>/g, '')
+                .replace(/---<br>/g, '<hr>');
+
+            container.innerHTML = `
+                <div class="journal-entry">
+                    <h3>📄 ${filename}</h3>
+                    <div class="journal-content">
+                        ${htmlContent}
+                    </div>
+                </div>
+            `;
+        }
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+            setTimeout(() => {
+                statusDiv.innerHTML = '';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

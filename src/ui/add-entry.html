@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Production Journal - Becoming Album</title>
+    <title>Add New Entry - Production Journal</title>
     <style>
         * {
             margin: 0;
@@ -45,6 +45,13 @@
         }
 
         .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
             margin-bottom: 20px;
         }
 
@@ -115,44 +122,20 @@
             transform: translateY(-2px);
         }
 
-        .entries-section {
-            margin-top: 30px;
+        .btn-back {
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
         }
 
-        .entry {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 15px;
-            border-left: 4px solid #667eea;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-        }
-
-        .entry-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .entry-date {
-            font-weight: 600;
-            color: #667eea;
-            font-size: 1.1em;
-        }
-
-        .entry-track {
-            background: #e3f2fd;
-            color: #1976d2;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.9em;
-            font-weight: 500;
-        }
-
-        .entry-content {
-            color: #495057;
-            line-height: 1.6;
+        .btn-back:hover {
+            background: #218838;
+            transform: translateY(-2px);
         }
 
         .status {
@@ -175,27 +158,27 @@
             border: 1px solid #f5c6cb;
         }
 
-        .clear-btn {
-            background: #dc3545;
-            color: white;
-            padding: 8px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
+        code {
+            background: #f1f3f4;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Menlo', monospace;
             font-size: 0.9em;
-            margin-left: 10px;
-        }
-
-        .clear-btn:hover {
-            background: #c82333;
+            color: #d73a49;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎧 Production Journal</h1>
+        <a href="http://localhost:8082/" class="btn-back">← Back to Home</a>
+        
+        <h1>✏️ Add New Entry</h1>
         
         <div class="form-section">
+            <p style="text-align: center; color: #666; margin-bottom: 20px;">
+                Complete the form with session details. Entries are automatically saved to <code>docs/journal/YYYY/MM/</code> folder by the server
+            </p>
+            
             <div class="form-group">
                 <label for="track">Track:</label>
                 <select id="track" name="track">
@@ -213,30 +196,63 @@
                 <textarea id="notes" name="notes" placeholder="What did you accomplish today? What didn't work? Ideas for next time?"></textarea>
             </div>
 
+            <div class="form-group">
+                <label for="followup">Follow-up Actions:</label>
+                <textarea id="followup" name="followup" placeholder="Things to try next time, technical decisions made, files to reference, next session goals"></textarea>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="bpm">BPM:</label>
+                    <input type="number" id="bpm" name="bpm" placeholder="120" min="60" max="200">
+                </div>
+                <div class="form-group">
+                    <label for="key">Key:</label>
+                    <input type="text" id="key" name="key" placeholder="C major">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="effects">Effects Used:</label>
+                <input type="text" id="effects" name="effects" placeholder="Reverb, Delay, Compressor">
+            </div>
+
+            <div class="form-group">
+                <label for="issues">Recording Issues:</label>
+                <input type="text" id="issues" name="issues" placeholder="Any technical problems or challenges">
+            </div>
+
+            <div class="form-group">
+                <label for="mood">Mood/Feeling:</label>
+                <input type="text" id="mood" name="mood" placeholder="Describe the creative mood">
+            </div>
+
+            <div class="form-group">
+                <label for="inspiration">Inspiration:</label>
+                <input type="text" id="inspiration" name="inspiration" placeholder="What inspired this session">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="challenges">Challenges:</label>
+                    <input type="text" id="challenges" name="challenges" placeholder="What was difficult">
+                </div>
+                <div class="form-group">
+                    <label for="breakthroughs">Breakthroughs:</label>
+                    <input type="text" id="breakthroughs" name="breakthroughs" placeholder="What worked well">
+                </div>
+            </div>
+
             <div class="button-group">
                 <button class="btn-primary" onclick="addEntry()">Add Entry</button>
                 <button class="btn-secondary" onclick="clearForm()">Clear</button>
             </div>
-            
-            <div class="button-group" style="margin-top: 15px;">
-                <button class="btn-secondary" onclick="exportToMarkdown()">Export Journal</button>
-            </div>
         </div>
 
         <div id="status"></div>
-
-        <div class="entries-section">
-            <h2>Recent Entries</h2>
-            <div id="entries"></div>
-        </div>
     </div>
 
     <script>
-        // Load existing entries on page load
-        window.onload = function() {
-            loadEntries();
-        };
-
         function addEntry() {
             const track = document.getElementById('track').value;
             const notes = document.getElementById('notes').value.trim();
@@ -249,6 +265,15 @@
             const entry = {
                 track: track,
                 notes: notes,
+                followup: document.getElementById('followup').value.trim(),
+                bpm: document.getElementById('bpm').value.trim(),
+                key: document.getElementById('key').value.trim(),
+                effects: document.getElementById('effects').value.trim(),
+                issues: document.getElementById('issues').value.trim(),
+                mood: document.getElementById('mood').value.trim(),
+                inspiration: document.getElementById('inspiration').value.trim(),
+                challenges: document.getElementById('challenges').value.trim(),
+                breakthroughs: document.getElementById('breakthroughs').value.trim(),
                 timestamp: new Date().toISOString(),
                 date: new Date().toLocaleDateString('en-US', { 
                     year: 'numeric', 
@@ -259,92 +284,46 @@
                 })
             };
 
-            // Save to localStorage
-            let entries = JSON.parse(localStorage.getItem('productionJournal') || '[]');
-            entries.unshift(entry); // Add to beginning
-            localStorage.setItem('productionJournal', JSON.stringify(entries));
-
-            // Update display
-            loadEntries();
-            clearForm();
-            showStatus('Entry added successfully!', 'success');
-
-            // Auto-export to markdown file
-            exportToMarkdown();
+            // Send to server to save file
+            saveToServer(entry);
         }
 
-        function exportToMarkdown() {
-            const entries = JSON.parse(localStorage.getItem('productionJournal') || '[]');
-            
-            // Create markdown content
-            let markdownContent = `# Production Journal
-
-## Session Log
-
-`;
-
-            // Add all entries
-            entries.forEach(entry => {
-                markdownContent += `### ${entry.date} - ${entry.track}\n`;
-                markdownContent += `- ${entry.notes}\n\n`;
+        function saveToServer(entry) {
+            // Send entry to Python server
+            fetch('http://localhost:8082/save-entry', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(entry)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showStatus(`✅ Entry saved to ${data.file_path}`, 'success');
+                    clearForm();
+                } else {
+                    showStatus(`❌ Error: ${data.message}`, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showStatus('❌ Error connecting to server. Make sure the journal server is running.', 'error');
             });
-
-            // Add the template section
-            markdownContent += `---
-
-## Notes Template
-For each session, log:
-- What was accomplished
-- What didn't work
-- Ideas for next time
-- Technical decisions made`;
-
-            // Create a blob and download it
-            const blob = new Blob([markdownContent], { type: 'text/markdown' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'production-journal-export.md';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-
-            // Also copy the latest entry to clipboard for manual pasting
-            if (entries.length > 0) {
-                const latestEntry = entries[0];
-                const markdownEntry = `### ${latestEntry.date} - ${latestEntry.track}\n- ${latestEntry.notes}\n\n`;
-                navigator.clipboard.writeText(markdownEntry).then(() => {
-                    console.log('Latest entry copied to clipboard');
-                });
-            }
-
-            showStatus('Journal exported and latest entry copied to clipboard!', 'success');
-        }
-
-        function loadEntries() {
-            const entries = JSON.parse(localStorage.getItem('productionJournal') || '[]');
-            const entriesContainer = document.getElementById('entries');
-            
-            if (entries.length === 0) {
-                entriesContainer.innerHTML = '<p style="text-align: center; color: #6c757d; font-style: italic;">No entries yet. Start logging your creative process!</p>';
-                return;
-            }
-
-            entriesContainer.innerHTML = entries.map(entry => `
-                <div class="entry">
-                    <div class="entry-header">
-                        <span class="entry-date">${entry.date}</span>
-                        <span class="entry-track">${entry.track}</span>
-                    </div>
-                    <div class="entry-content">${entry.notes}</div>
-                </div>
-            `).join('');
         }
 
         function clearForm() {
             document.getElementById('track').value = 'Track 01: May';
             document.getElementById('notes').value = '';
+            document.getElementById('followup').value = '';
+            document.getElementById('bpm').value = '';
+            document.getElementById('key').value = '';
+            document.getElementById('effects').value = '';
+            document.getElementById('issues').value = '';
+            document.getElementById('mood').value = '';
+            document.getElementById('inspiration').value = '';
+            document.getElementById('challenges').value = '';
+            document.getElementById('breakthroughs').value = '';
         }
 
         function showStatus(message, type) {
@@ -352,7 +331,7 @@ For each session, log:
             statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
             setTimeout(() => {
                 statusDiv.innerHTML = '';
-            }, 3000);
+            }, 5000);
         }
 
         // Keyboard shortcuts

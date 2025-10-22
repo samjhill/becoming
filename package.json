@@ -6,6 +6,7 @@
   "scripts": {
     "start": "python3 -m http.server 8080",
     "serve": "python3 -m http.server 8080",
+    "journal-server": "python3 start-journal-server.py",
     "export-journal": "python3 src/scripts/export-journal.py"
   },
   "keywords": [
