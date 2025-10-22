@@ -122,6 +122,16 @@
             transform: translateY(-2px);
         }
 
+        .btn-git {
+            background: #24292e;
+            color: white;
+        }
+
+        .btn-git:hover {
+            background: #1a1e22;
+            transform: translateY(-2px);
+        }
+
         .btn-back {
             background: #28a745;
             color: white;
@@ -247,6 +257,10 @@
                 <button class="btn-primary" onclick="addEntry()">Add Entry</button>
                 <button class="btn-secondary" onclick="clearForm()">Clear</button>
             </div>
+            
+            <div class="button-group" style="margin-top: 15px;">
+                <button class="btn-git" onclick="commitAndPush()">💾 Commit & Push to GitHub</button>
+            </div>
         </div>
 
         <div id="status"></div>
@@ -350,6 +364,28 @@
 
         // Auto-focus on notes field
         document.getElementById('notes').focus();
+
+        // Git Functions
+        function commitAndPush() {
+            fetch('http://localhost:8082/api/git-commit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showStatus(`✅ ${data.message}`, 'success');
+                } else {
+                    showStatus(`❌ ${data.message}`, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showStatus('❌ Error connecting to server for Git operations.', 'error');
+            });
+        }
     </script>
 </body>
 </html>

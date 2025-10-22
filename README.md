@@ -19,6 +19,7 @@ Open your browser and navigate to: **http://localhost:8082**
 - **Browse Entries**: Read and reference your production history
 - **Auto-Save**: Entries are automatically saved to organized markdown files
 - **Rich Metadata**: Track BPM, key, effects, mood, inspiration, and more
+- **Git Integration**: One-click commit and push to GitHub for automatic version control
 
 ### 🗂️ Organized Project Structure
 - **Logic Pro Projects**: Organized by track in `logic-projects/`
@@ -99,6 +100,13 @@ becoming/
    - **Technical Details**: BPM, key, effects used
    - **Creative Notes**: Mood, inspiration, challenges, breakthroughs
 3. Click **Add Entry** - it's automatically saved!
+4. Click **💾 Commit & Push to GitHub** to backup your changes
+
+### Git Integration
+- **One-Click Backup**: Use the "💾 Commit & Push" button on any page
+- **Automatic Commit Messages**: Timestamped commits for easy tracking
+- **Smart Detection**: Only commits when there are actual changes
+- **Error Handling**: Clear feedback if Git operations fail
 
 ### Reading Journal Entries
 1. Navigate to **Read Entries** from the homepage
@@ -121,6 +129,7 @@ becoming/
   - `POST /save-entry`: Save new journal entries
   - `GET /api/journal-files`: List all journal files
   - `GET /api/journal-file/{filename}`: Get specific file content
+  - `POST /api/git-commit`: Commit and push changes to GitHub
 
 ### File Organization
 - **Journal Files**: Auto-saved as `YYYY-MM-DD-HHMM-track-name.md`

@@ -163,6 +163,15 @@
                 </div>
                 <a href="docs/" class="tool-button">View Docs</a>
             </div>
+            
+            <div class="tool-card">
+                <div class="tool-icon">💾</div>
+                <div class="tool-title">Git Operations</div>
+                <div class="tool-description">
+                    Commit and push your changes to GitHub with one click. Keep your project backed up and version controlled.
+                </div>
+                <button class="tool-button" onclick="commitAndPush()" style="background: #24292e; color: white; border: none; cursor: pointer;">Commit & Push</button>
+            </div>
         </div>
 
         <div class="project-info">
@@ -183,5 +192,29 @@ becoming/
             </div>
         </div>
     </div>
+
+    <script>
+        // Git Functions
+        function commitAndPush() {
+            fetch('http://localhost:8082/api/git-commit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`✅ ${data.message}`);
+                } else {
+                    alert(`❌ ${data.message}`);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('❌ Error connecting to server for Git operations.');
+            });
+        }
+    </script>
 </body>
 </html>

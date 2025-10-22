@@ -166,6 +166,21 @@
             background: #0056b3;
             transform: translateY(-2px);
         }
+
+        .git-btn {
+            background: #24292e;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .git-btn:hover {
+            background: #1a1e22;
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body>
@@ -177,7 +192,10 @@
         <div class="journal-reader-section">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h2>Your Journal Entries</h2>
-                <button class="refresh-btn" onclick="loadJournalFiles()">🔄 Refresh</button>
+                <div style="display: flex; gap: 10px;">
+                    <button class="refresh-btn" onclick="loadJournalFiles()">🔄 Refresh</button>
+                    <button class="git-btn" onclick="commitAndPush()">💾 Commit & Push</button>
+                </div>
             </div>
             
             <div id="journal-files-list">
@@ -295,6 +313,28 @@
             setTimeout(() => {
                 statusDiv.innerHTML = '';
             }, 5000);
+        }
+
+        // Git Functions
+        function commitAndPush() {
+            fetch('http://localhost:8082/api/git-commit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showStatus(`✅ ${data.message}`, 'success');
+                } else {
+                    showStatus(`❌ ${data.message}`, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showStatus('❌ Error connecting to server for Git operations.', 'error');
+            });
         }
     </script>
 </body>

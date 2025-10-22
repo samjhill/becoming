@@ -22,9 +22,11 @@ class JournalHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_POST(self):
-        """Handle POST requests for saving journal entries"""
+        """Handle POST requests for saving journal entries and Git operations"""
         if self.path == '/save-entry':
             self.save_journal_entry()
+        elif self.path == '/api/git-commit':
+            self.git_commit_and_push()
         else:
             self.send_error(404, "Not Found")
 
@@ -42,6 +44,8 @@ class JournalHandler(BaseHTTPRequestHandler):
             self.list_journal_files()
         elif self.path.startswith('/api/journal-file/'):
             self.get_journal_file()
+        elif self.path == '/api/git-commit':
+            self.git_commit_and_push()
         else:
             self.send_error(404, "Not Found")
 
@@ -307,6 +311,79 @@ class JournalHandler(BaseHTTPRequestHandler):
             self.send_header('Access-Control-Allow-Origin', '*')
             self.end_headers()
             self.wfile.write(json.dumps(error_response).encode())
+
+    def git_commit_and_push(self):
+        """Commit and push changes to Git repository"""
+        try:
+            import subprocess
+            
+            # Get current timestamp for commit message
+            timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            
+            # Check if there are changes to commit
+            result = subprocess.run(['git', 'status', '--porcelain'], 
+                                  capture_output=True, text=True, cwd='.')
+            
+            if not result.stdout.strip():
+                response = {
+                    'success': True,
+                    'message': 'No changes to commit',
+                    'output': 'Working directory is clean'
+                }
+            else:
+                # Add all changes
+                subprocess.run(['git', 'add', '.'], cwd='.')
+                
+                # Commit with timestamp
+                commit_message = f"Auto-commit: Production journal updates - {timestamp}"
+                commit_result = subprocess.run(['git', 'commit', '-m', commit_message], 
+                                             capture_output=True, text=True, cwd='.')
+                
+                if commit_result.returncode == 0:
+                    # Try to push to remote
+                    push_result = subprocess.run(['git', 'push'], 
+                                               capture_output=True, text=True, cwd='.')
+                    
+                    if push_result.returncode == 0:
+                        response = {
+                            'success': True,
+                            'message': 'Changes committed and pushed successfully',
+                            'output': f'Commit: {commit_message}\nPush: {push_result.stdout}'
+                        }
+                    else:
+                        response = {
+                            'success': True,
+                            'message': 'Changes committed but push failed',
+                            'output': f'Commit: {commit_message}\nPush Error: {push_result.stderr}'
+                        }
+                else:
+                    response = {
+                        'success': False,
+                        'message': 'Failed to commit changes',
+                        'output': commit_result.stderr
+                    }
+            
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(json.dumps(response).encode())
+            
+            print(f"Git operation: {response['message']}")
+            
+        except Exception as e:
+            error_response = {
+                'success': False,
+                'message': f'Git operation failed: {str(e)}'
+            }
+            
+            self.send_response(500)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(json.dumps(error_response).encode())
+            
+            print(f"Git operation error: {e}")
 
 def start_server(port=8082):
     """Start the journal server"""
