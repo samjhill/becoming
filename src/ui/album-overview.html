@@ -312,6 +312,10 @@
         <div class="header">
             <h1>🎵 Becoming Album</h1>
             <p>Track your progress and manage your songs</p>
+            <div style="margin-top: 15px;">
+                <a href="http://localhost:8082/src/ui/add-entry.html" style="color: white; text-decoration: none; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; font-size: 0.9em; margin-right: 10px;">✏️ Add Journal Entry</a>
+                <a href="http://localhost:8082/" style="color: white; text-decoration: none; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; font-size: 0.9em;">🏠 Home</a>
+            </div>
         </div>
 
         <div class="stats-grid">
@@ -388,6 +392,48 @@
                 <button type="submit" class="btn btn-primary">Add Song</button>
             </form>
             <div id="statusMessage"></div>
+        </div>
+    </div>
+
+    <!-- Edit Song Modal -->
+    <div id="editSongModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditSongModal()">&times;</span>
+            <h2>Edit Song</h2>
+            <form id="editSongForm">
+                <input type="hidden" id="editSongId" name="songId">
+                <div class="form-group">
+                    <label for="editSongTitle">Song Title:</label>
+                    <input type="text" id="editSongTitle" name="songTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="editSongKey">Key:</label>
+                    <input type="text" id="editSongKey" name="songKey" placeholder="e.g., C Major">
+                </div>
+                <div class="form-group">
+                    <label for="editSongBpm">BPM:</label>
+                    <input type="number" id="editSongBpm" name="songBpm" placeholder="e.g., 120">
+                </div>
+                <div class="form-group">
+                    <label for="editSongStatus">Status:</label>
+                    <select id="editSongStatus" name="songStatus">
+                        <option value="draft">Draft</option>
+                        <option value="production">Production</option>
+                        <option value="mixing">Mixing</option>
+                        <option value="mastering">Mastering</option>
+                        <option value="done">Done</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editSongNotes">Notes:</label>
+                    <textarea id="editSongNotes" name="songNotes" rows="3" placeholder="Initial ideas, concepts, or notes..."></textarea>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <button type="button" class="btn btn-secondary" onclick="deleteSong()" style="background: #dc3545;">Delete Song</button>
+                </div>
+            </form>
+            <div id="editStatusMessage"></div>
         </div>
     </div>
 
@@ -470,6 +516,12 @@
             document.getElementById('statusMessage').innerHTML = '';
         }
 
+        function closeEditSongModal() {
+            document.getElementById('editSongModal').style.display = 'none';
+            document.getElementById('editSongForm').reset();
+            document.getElementById('editStatusMessage').innerHTML = '';
+        }
+
         function addSong(songData) {
             fetch('http://localhost:8082/api/songs', {
                 method: 'POST',
@@ -505,11 +557,81 @@
             return progressMap[status] || 0;
         }
 
+        function updateSong(songData) {
+            const songId = document.getElementById('editSongId').value;
+            
+            fetch(`http://localhost:8082/api/songs/${songId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(songData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadSongs(); // Reload songs from server
+                    closeEditSongModal();
+                    showEditStatus('Song updated successfully!', 'success');
+                } else {
+                    showEditStatus(`Error: ${data.message}`, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error updating song:', error);
+                showEditStatus('Error connecting to server', 'error');
+            });
+        }
+
+        function deleteSong() {
+            const songId = document.getElementById('editSongId').value;
+            const songTitle = document.getElementById('editSongTitle').value;
+            
+            if (confirm(`Are you sure you want to delete "${songTitle}"? This action cannot be undone.`)) {
+                fetch(`http://localhost:8082/api/songs/${songId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        loadSongs(); // Reload songs from server
+                        closeEditSongModal();
+                        showEditStatus('Song deleted successfully!', 'success');
+                    } else {
+                        showEditStatus(`Error: ${data.message}`, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting song:', error);
+                    showEditStatus('Error connecting to server', 'error');
+                });
+            }
+        }
+
+        function showEditStatus(message, type) {
+            const statusDiv = document.getElementById('editStatusMessage');
+            statusDiv.innerHTML = `<div class="status-message status-${type}">${message}</div>`;
+            setTimeout(() => {
+                statusDiv.innerHTML = '';
+            }, 3000);
+        }
+
         function editSong(songId) {
-            // For now, just show an alert. Later we'll implement full editing
             const song = songs.find(s => s.id === songId);
             if (song) {
-                alert(`Edit ${song.title}\n\nThis will open a full editing interface in the next version.`);
+                // Populate the edit form with song data
+                document.getElementById('editSongId').value = song.id;
+                document.getElementById('editSongTitle').value = song.title;
+                document.getElementById('editSongKey').value = song.key || '';
+                document.getElementById('editSongBpm').value = song.bpm || '';
+                document.getElementById('editSongStatus').value = song.status;
+                document.getElementById('editSongNotes').value = song.notes || '';
+                
+                // Show the edit modal
+                document.getElementById('editSongModal').style.display = 'block';
             }
         }
 
@@ -556,11 +678,22 @@
             showStatus('Song added successfully!', 'success');
         });
 
+        // Edit form submission
+        document.getElementById('editSongForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const songData = Object.fromEntries(formData.entries());
+            updateSong(songData);
+        });
+
         // Close modal when clicking outside
         window.onclick = function(event) {
-            const modal = document.getElementById('addSongModal');
-            if (event.target === modal) {
+            const addModal = document.getElementById('addSongModal');
+            const editModal = document.getElementById('editSongModal');
+            if (event.target === addModal) {
                 closeAddSongModal();
+            } else if (event.target === editModal) {
+                closeEditSongModal();
             }
         }
     </script>

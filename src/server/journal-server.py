@@ -6,6 +6,7 @@ Handles saving journal entries directly to the docs folder
 
 import os
 import json
+import time
 from datetime import datetime
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
@@ -17,7 +18,7 @@ class JournalHandler(BaseHTTPRequestHandler):
         """Handle CORS preflight requests"""
         self.send_response(200)
         self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
         self.send_header('Access-Control-Allow-Headers', 'Content-Type')
         self.end_headers()
 
@@ -29,6 +30,22 @@ class JournalHandler(BaseHTTPRequestHandler):
             self.save_song()
         elif self.path == '/api/git-commit':
             self.git_commit_and_push()
+        else:
+            self.send_error(404, "Not Found")
+
+    def do_PUT(self):
+        """Handle PUT requests for updating songs"""
+        if self.path.startswith('/api/songs/'):
+            song_id = self.path.split('/')[-1]
+            self.update_song(song_id)
+        else:
+            self.send_error(404, "Not Found")
+
+    def do_DELETE(self):
+        """Handle DELETE requests for deleting songs"""
+        if self.path.startswith('/api/songs/'):
+            song_id = self.path.split('/')[-1]
+            self.delete_song(song_id)
         else:
             self.send_error(404, "Not Found")
 
@@ -501,6 +518,131 @@ class JournalHandler(BaseHTTPRequestHandler):
             'done': 100
         }
         return progress_map.get(status, 0)
+
+    def update_song(self, song_id):
+        """Update an existing song in the songs.json file"""
+        try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            song_data = json.loads(post_data.decode('utf-8'))
+            
+            songs_file = 'docs/songs.json'
+            if not os.path.exists(songs_file):
+                self.send_error(404, "Songs file not found")
+                return
+            
+            with open(songs_file, 'r') as f:
+                songs = json.load(f)
+            
+            # Find the song to update
+            song_index = None
+            for i, song in enumerate(songs):
+                if song['id'] == song_id:
+                    song_index = i
+                    break
+            
+            if song_index is None:
+                self.send_error(404, "Song not found")
+                return
+            
+            # Update the song
+            songs[song_index].update({
+                'title': song_data.get('songTitle', songs[song_index]['title']),
+                'key': song_data.get('songKey', songs[song_index]['key']),
+                'bpm': int(song_data.get('songBpm', 0)) if song_data.get('songBpm') else songs[song_index]['bpm'],
+                'status': song_data.get('songStatus', songs[song_index]['status']),
+                'notes': song_data.get('songNotes', songs[song_index]['notes']),
+                'progress': self.get_default_progress(song_data.get('songStatus', songs[song_index]['status'])),
+                'updatedAt': datetime.now().isoformat()
+            })
+            
+            # Save updated songs list
+            with open(songs_file, 'w') as f:
+                json.dump(songs, f, indent=2)
+            
+            response = {
+                'success': True,
+                'message': f'Song "{songs[song_index]["title"]}" updated successfully',
+                'song': songs[song_index]
+            }
+            
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(json.dumps(response).encode())
+            
+            print(f"Song updated: {songs[song_index]['title']} ({songs[song_index]['status']})")
+            
+        except Exception as e:
+            error_response = {
+                'success': False,
+                'message': f'Failed to update song: {str(e)}'
+            }
+            self.send_response(500)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(json.dumps(error_response).encode())
+            
+            print(f"Error updating song: {e}")
+
+    def delete_song(self, song_id):
+        """Delete a song from the songs.json file"""
+        try:
+            songs_file = 'docs/songs.json'
+            if not os.path.exists(songs_file):
+                self.send_error(404, "Songs file not found")
+                return
+            
+            with open(songs_file, 'r') as f:
+                songs = json.load(f)
+            
+            # Find the song to delete
+            song_index = None
+            song_title = ""
+            for i, song in enumerate(songs):
+                if song['id'] == song_id:
+                    song_index = i
+                    song_title = song['title']
+                    break
+            
+            if song_index is None:
+                self.send_error(404, "Song not found")
+                return
+            
+            # Remove the song
+            songs.pop(song_index)
+            
+            # Save updated songs list
+            with open(songs_file, 'w') as f:
+                json.dump(songs, f, indent=2)
+            
+            response = {
+                'success': True,
+                'message': f'Song "{song_title}" deleted successfully'
+            }
+            
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(json.dumps(response).encode())
+            
+            print(f"Song deleted: {song_title}")
+            
+        except Exception as e:
+            error_response = {
+                'success': False,
+                'message': f'Failed to delete song: {str(e)}'
+            }
+            self.send_response(500)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(json.dumps(error_response).encode())
+            
+            print(f"Error deleting song: {e}")
 
 def start_server(port=8082):
     """Start the journal server"""

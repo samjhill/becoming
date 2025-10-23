@@ -191,15 +191,16 @@
             
             <div class="form-group">
                 <label for="track">Song/Track:</label>
-                <select id="track" name="track">
-                    <option value="Track 01: May">Track 01: May</option>
-                    <option value="Track 02: Resume">Track 02: Resume</option>
-                    <option value="General">General</option>
-                    <option value="Sound Design">Sound Design</option>
-                    <option value="Mixing">Mixing</option>
-                    <option value="Mastering">Mastering</option>
-                    <option value="new-song">+ Create New Song</option>
-                </select>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <select id="track" name="track" style="flex: 1;">
+                        <option value="General">General</option>
+                        <option value="Sound Design">Sound Design</option>
+                        <option value="Mixing">Mixing</option>
+                        <option value="Mastering">Mastering</option>
+                        <option value="new-song">+ Create New Song</option>
+                    </select>
+                    <button type="button" onclick="loadSongsFromAlbum()" style="padding: 8px 12px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 0.9em;" title="Refresh song list">🔄</button>
+                </div>
             </div>
 
             <div class="form-group">
@@ -328,7 +329,7 @@
         }
 
         function clearForm() {
-            document.getElementById('track').value = 'Track 01: May';
+            document.getElementById('track').value = 'General';
             document.getElementById('notes').value = '';
             document.getElementById('followup').value = '';
             document.getElementById('bpm').value = '';
@@ -363,8 +364,58 @@
             }
         });
 
-        // Auto-focus on notes field
-        document.getElementById('notes').focus();
+        // Load songs from album overview on page load
+        window.onload = function() {
+            loadSongsFromAlbum();
+            // Auto-focus on notes field
+            document.getElementById('notes').focus();
+            
+            // Add event listener for track selection
+            document.getElementById('track').addEventListener('change', function() {
+                if (this.value === 'new-song') {
+                    // Redirect to album overview to create new song
+                    window.location.href = 'http://localhost:8082/album-overview';
+                }
+            });
+        };
+
+        // Load songs from album overview and populate track dropdown
+        function loadSongsFromAlbum() {
+            fetch('http://localhost:8082/api/songs')
+                .then(response => response.json())
+                .then(data => {
+                    const trackSelect = document.getElementById('track');
+                    
+                    // Clear existing options except the static ones
+                    const staticOptions = ['General', 'Sound Design', 'Mixing', 'Mastering', '+ Create New Song'];
+                    const currentOptions = Array.from(trackSelect.options).map(option => option.value);
+                    
+                    // Remove song options that are no longer in the album
+                    Array.from(trackSelect.options).forEach(option => {
+                        if (!staticOptions.includes(option.value) && option.value !== 'new-song') {
+                            option.remove();
+                        }
+                    });
+                    
+                    // Add songs from album overview
+                    data.forEach(song => {
+                        const songTitle = song.title;
+                        const trackTitle = `Track: ${songTitle}`;
+                        // Only add if not already present
+                        if (!currentOptions.includes(trackTitle)) {
+                            const option = document.createElement('option');
+                            option.value = trackTitle;
+                            option.textContent = trackTitle;
+                            // Insert before the "Create New Song" option
+                            trackSelect.insertBefore(option, trackSelect.lastElementChild);
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading songs from album:', error);
+                    // Continue with static options if server is unavailable
+                });
+        }
 
         // Git Functions
         function commitAndPush() {
