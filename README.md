@@ -2,15 +2,27 @@
 
 A music production workflow system for tracking your album progress, journaling sessions, and managing files.
 
-**GitHub**: [samjhill/becoming](https://github.com/samjhill/becoming)
+**Template Repository**: This is a template for album production workflows. Fork this repo for each new album you create.
 
-## Quick Start
+**Current Album**: [samjhill/becoming](https://github.com/samjhill/becoming)
 
+## Getting Started
+
+### For a New Album
+1. **Fork this repository** for your new album
+2. **Follow the setup guide**: See `TEMPLATE_SETUP.md` for detailed instructions
+3. **Customize for your album**: Update track names, album title, etc.
+4. **Start the server**:
+   ```bash
+   python3 start-journal-server.py
+   ```
+5. **Open your browser**: http://localhost:8082
+
+### For This Album
 1. **Start the server**:
    ```bash
    python3 start-journal-server.py
    ```
-
 2. **Open your browser**: http://localhost:8082
 
 ## Features
@@ -54,7 +66,9 @@ A music production workflow system for tracking your album progress, journaling 
 ## Project Structure
 
 ```
-becoming/
+your-album-name/
+├── README.md            # Your album's documentation
+├── TEMPLATE_SETUP.md    # Setup guide for new albums
 ├── src/ui/              # Web interface pages
 ├── src/server/          # Python server
 ├── docs/                # Documentation and journal entries

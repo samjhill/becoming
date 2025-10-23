@@ -58,3 +58,8 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+
+# Template-specific
+# Keep these files in the template but ignore user-specific data
+docs/songs.json
+docs/journal/
