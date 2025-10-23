@@ -129,6 +129,65 @@
             margin-top: 15px;
             overflow-x: auto;
         }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 20px;
+                max-width: 100%;
+            }
+            .tools-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .tool-card {
+                padding: 20px;
+            }
+            .tool-title {
+                font-size: 1.3em;
+            }
+            .tool-description {
+                font-size: 0.95em;
+            }
+            h1 {
+                font-size: 2.5rem;
+            }
+            .tagline {
+                font-size: 1.1em;
+            }
+            .tool-button {
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+            .tool-card {
+                padding: 15px;
+            }
+            .tool-title {
+                font-size: 1.2em;
+            }
+            .tool-description {
+                font-size: 0.9em;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+            .tagline {
+                font-size: 1em;
+            }
+            .tool-button {
+                padding: 10px 15px;
+                font-size: 13px;
+            }
+        }
     </style>
 </head>
 <body>

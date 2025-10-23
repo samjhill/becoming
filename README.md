@@ -1,9 +1,8 @@
 # 🎵 Becoming Album - Production Workflow
 
-A music production workflow system for tracking your album progress, journaling sessions, and managing files.
+**"Trello for making an album"** - A music production workflow system for tracking your album progress, journaling sessions, and managing files.
 
-**Template Repository**: This is a template for album production workflows. Fork this repo for each new album you create.
-
+**Template Repository**: Fork this repo for each new album you create.  
 **Current Album**: [samjhill/becoming](https://github.com/samjhill/becoming)
 
 ## Getting Started
@@ -28,40 +27,34 @@ A music production workflow system for tracking your album progress, journaling 
 ## Features
 
 ### 📝 Production Journal
-- Add session notes with technical details
-- Track BPM, key, effects, mood, inspiration
-- Auto-save to organized markdown files
-- Browse your production history
+- **Session tracking** with technical details (BPM, key, effects, mood, inspiration)
+- **Auto-organized** markdown files by date
+- **Browse history** of all your production sessions
 
-### 🎵 Album Management
-- Track song progress (draft → production → mixing → mastering → done)
-- Visual dashboard showing completion percentage
-- Add songs with metadata (title, key, BPM, notes)
-- Monitor overall album progress
+### 🎵 Album Management  
+- **Visual dashboard** for song progress tracking
+- **Full CRUD operations** - create, edit, delete songs
+- **Progress tracking** from draft → production → mixing → mastering → done
+- **Smart integration** - songs automatically appear in journal dropdown
 
 ### 💾 Git Integration
-- One-click commit and push to GitHub
-- Automatic backup of all changes
-- Version control for your entire project
+- **One-click backup** - commit and push to GitHub
+- **Version control** for your entire project
+- **Auto-organized archives** in `docs/journal/YYYY/MM/`
 
-## Usage
+### 📱 Mobile & Offline Support
+- **Responsive design** works perfectly on tablets and phones
+- **Seamless offline mode** - entries save locally and sync when online
+- **Invisible to user** - automatic fallback with no interruption
 
-### Adding Journal Entries
-1. Go to **Add New Entry** from the homepage
-2. Fill in session details (track, notes, BPM, key, etc.)
-3. Click **Add Entry** - automatically saved!
-4. Use **💾 Commit & Push** to backup to GitHub
+## Quick Start
 
-### Managing Your Album
-1. Go to **Album Overview** from the homepage
-2. Add songs with metadata (title, key, BPM, status)
-3. Track progress through the pipeline
-4. Monitor completion percentage
-
-### Reading Entries
-1. Go to **Read Entries** from the homepage
-2. Browse entries by date
-3. Click any entry to read the full content
+1. **Start the server**: `python3 start-journal-server.py`
+2. **Open your browser**: http://localhost:8082
+3. **Add songs** in Album Overview
+4. **Log sessions** in Add Entry  
+5. **Browse history** in Read Entries
+6. **Backup changes** with Commit & Push buttons
 
 ## Project Structure
 
@@ -77,21 +70,10 @@ your-album-name/
 └── bounces/             # Mixes and masters
 ```
 
-## Technical Details
-
-- **Server**: Python HTTP server on port 8082
-- **Storage**: Songs in `docs/songs.json`, journal entries in `docs/journal/`
-- **Git**: Automatic commits with timestamped messages
-- **Backup**: One-click push to GitHub
-
-## Troubleshooting
-
-- **Server won't start**: Make sure port 8082 isn't in use
-- **Can't access pages**: Check that the server is running
-- **Git errors**: Ensure you have a GitHub remote configured
-
 ## Requirements
 
 - Python 3.7+
 - Git with LFS support
 - Modern web browser
+
+**Need help?** Check `TEMPLATE_SETUP.md` for detailed setup instructions.

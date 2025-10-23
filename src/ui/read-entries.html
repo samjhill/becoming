@@ -181,6 +181,52 @@
             background: #1a1e22;
             transform: translateY(-2px);
         }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 20px;
+                max-width: 100%;
+            }
+            .entry-item {
+                padding: 12px;
+            }
+            .entry-content {
+                padding: 15px;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+            .btn, .refresh-btn, .git-btn {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+            .button-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .btn, .refresh-btn, .git-btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+            .entry-item {
+                padding: 10px;
+            }
+            .entry-content {
+                padding: 12px;
+            }
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
     </style>
 </head>
 <body>

@@ -24,18 +24,16 @@ cd YOUR_ALBUM_NAME
 #### Update Album Title
 Replace "Becoming" with your album name in these files:
 - `src/ui/album-overview.html` - Update the title in the header
-- `src/ui/add-entry.html` - Update track options if needed
 - `README.md` - Update the album name and repository links
 
 #### Update Track Names
-Edit `src/ui/add-entry.html` and replace the track options:
-```html
-<select id="track" name="track">
-    <option value="Track 01: Your Song Name">Track 01: Your Song Name</option>
-    <option value="Track 02: Another Song">Track 02: Another Song</option>
-    <!-- Add your tracks here -->
-</select>
-```
+**Note**: The system now automatically manages tracks through the Album Overview page. You don't need to manually edit the dropdown anymore!
+
+Instead, simply:
+1. Start the server: `python3 start-journal-server.py`
+2. Go to the Album Overview page
+3. Click "Add New Song" to create your tracks
+4. The tracks will automatically appear in the Add Entry dropdown with "Track: " prefix
 
 #### Update Homepage
 Edit `index.html` and update:
@@ -61,10 +59,14 @@ your-album-name/
 ├── README.md                    # Your album's README
 ├── TEMPLATE_SETUP.md           # This setup guide (can be deleted)
 ├── src/ui/                     # Web interface
+│   ├── add-entry.html         # Add journal entries
+│   ├── read-entries.html      # Browse journal entries
+│   └── album-overview.html    # Manage songs and album progress
 ├── src/server/                 # Python server
+│   └── journal-server.py      # Backend API server
 ├── docs/                       # Documentation and journal entries
-│   ├── songs.json             # Your song catalog
-│   └── journal/               # Auto-organized journal entries
+│   ├── songs.json             # Your song catalog (auto-generated)
+│   └── journal/               # Auto-organized journal entries by date
 ├── logic-projects/            # Logic Pro sessions
 ├── stems/                     # Exported stems
 ├── bounces/                   # Mixes and masters
@@ -90,9 +92,11 @@ your-album-name/
 ## 🔧 Customization Options
 
 ### Adding More Tracks
-1. Edit `src/ui/add-entry.html`
-2. Add new track options to the dropdown
-3. Update the album overview page if needed
+**Easy Method**: Use the Album Overview page to add songs - they'll automatically appear in the Add Entry dropdown!
+
+**Advanced Method**: If you need to customize the static options:
+1. Edit `src/ui/add-entry.html` - modify the static dropdown options (General, Sound Design, Mixing, Mastering)
+2. Songs added via Album Overview will automatically appear with "Track: " prefix
 
 ### Custom Fields
 You can add more fields to journal entries by:
@@ -105,6 +109,14 @@ All UI files use CSS that can be customized:
 - `src/ui/add-entry.html` - Add entry form styling
 - `src/ui/read-entries.html` - Journal reader styling
 - `src/ui/album-overview.html` - Album dashboard styling
+
+### Features Overview
+Your template includes:
+- **Production Journal**: Track sessions with technical details (BPM, key, effects, mood, inspiration)
+- **Album Management**: Visual dashboard for song progress and album completion
+- **Git Integration**: One-click commit and push to backup your work
+- **Smart Organization**: Auto-organized journal entries by date
+- **Track Management**: Create, edit, and delete songs with full CRUD operations
 
 ## 🆘 Need Help?
 

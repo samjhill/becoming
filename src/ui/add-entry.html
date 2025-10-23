@@ -176,6 +176,83 @@
             font-size: 0.9em;
             color: #d73a49;
         }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 20px;
+                max-width: 100%;
+            }
+            .form-group input, .form-group textarea, .form-group select {
+                font-size: 16px; /* Prevents zoom on iOS */
+                padding: 12px;
+            }
+            .form-group {
+                margin-bottom: 15px;
+            }
+            .button-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .btn {
+                width: 100%;
+                padding: 12px;
+            }
+            .btn-git {
+                width: 100%;
+                padding: 12px;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+            .form-section {
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+            .form-group input, .form-group textarea, .form-group select {
+                padding: 10px;
+            }
+            .btn, .btn-git {
+                padding: 10px;
+                font-size: 14px;
+            }
+            h1 {
+                font-size: 1.8rem;
+            }
+            .form-section {
+                padding: 12px;
+            }
+        }
+
+        /* Offline indicator */
+        .offline-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #ff6b6b;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
     </style>
 </head>
 <body>
@@ -266,6 +343,7 @@
         </div>
 
         <div id="status"></div>
+        <div id="offlineIndicator" class="offline-indicator" style="display: none;">📱 Offline Mode - Entries will sync when online</div>
     </div>
 
     <script>
@@ -305,6 +383,15 @@
         }
 
         function saveToServer(entry) {
+            if (!isOnline) {
+                // Save to offline storage
+                offlineEntries.push(entry);
+                localStorage.setItem('offlineEntries', JSON.stringify(offlineEntries));
+                showStatus('📱 Entry saved offline - will sync when online', 'success');
+                clearForm();
+                return;
+            }
+
             // Send entry to Python server
             fetch('http://localhost:8082/save-entry', {
                 method: 'POST',
@@ -324,7 +411,11 @@
             })
             .catch(error => {
                 console.error('Error:', error);
-                showStatus('❌ Error connecting to server. Make sure the journal server is running.', 'error');
+                // Fallback to offline storage
+                offlineEntries.push(entry);
+                localStorage.setItem('offlineEntries', JSON.stringify(offlineEntries));
+                showStatus('📱 Entry saved offline - will sync when online', 'success');
+                clearForm();
             });
         }
 
@@ -379,42 +470,105 @@
             });
         };
 
+        // Offline detection and local storage
+        let isOnline = navigator.onLine;
+        let offlineEntries = JSON.parse(localStorage.getItem('offlineEntries') || '[]');
+
+        // Listen for online/offline events
+        window.addEventListener('online', () => {
+            isOnline = true;
+            document.getElementById('offlineIndicator').style.display = 'none';
+            syncOfflineEntries();
+        });
+        
+        window.addEventListener('offline', () => {
+            isOnline = false;
+            document.getElementById('offlineIndicator').style.display = 'block';
+        });
+
+        // Check initial online status
+        if (!isOnline) {
+            document.getElementById('offlineIndicator').style.display = 'block';
+        }
+
         // Load songs from album overview and populate track dropdown
         function loadSongsFromAlbum() {
+            if (!isOnline) {
+                // Use cached songs from localStorage when offline
+                const cachedSongs = JSON.parse(localStorage.getItem('cachedSongs') || '[]');
+                populateTrackDropdown(cachedSongs);
+                return;
+            }
+
             fetch('http://localhost:8082/api/songs')
                 .then(response => response.json())
                 .then(data => {
-                    const trackSelect = document.getElementById('track');
-                    
-                    // Clear existing options except the static ones
-                    const staticOptions = ['General', 'Sound Design', 'Mixing', 'Mastering', '+ Create New Song'];
-                    const currentOptions = Array.from(trackSelect.options).map(option => option.value);
-                    
-                    // Remove song options that are no longer in the album
-                    Array.from(trackSelect.options).forEach(option => {
-                        if (!staticOptions.includes(option.value) && option.value !== 'new-song') {
-                            option.remove();
-                        }
-                    });
-                    
-                    // Add songs from album overview
-                    data.forEach(song => {
-                        const songTitle = song.title;
-                        const trackTitle = `Track: ${songTitle}`;
-                        // Only add if not already present
-                        if (!currentOptions.includes(trackTitle)) {
-                            const option = document.createElement('option');
-                            option.value = trackTitle;
-                            option.textContent = trackTitle;
-                            // Insert before the "Create New Song" option
-                            trackSelect.insertBefore(option, trackSelect.lastElementChild);
-                        }
-                    });
+                    // Cache songs for offline use
+                    localStorage.setItem('cachedSongs', JSON.stringify(data));
+                    populateTrackDropdown(data);
                 })
                 .catch(error => {
                     console.error('Error loading songs from album:', error);
-                    // Continue with static options if server is unavailable
+                    // Fallback to cached songs
+                    const cachedSongs = JSON.parse(localStorage.getItem('cachedSongs') || '[]');
+                    populateTrackDropdown(cachedSongs);
                 });
+        }
+
+        function populateTrackDropdown(data) {
+            const trackSelect = document.getElementById('track');
+            
+            // Clear existing options except the static ones
+            const staticOptions = ['General', 'Sound Design', 'Mixing', 'Mastering', '+ Create New Song'];
+            const currentOptions = Array.from(trackSelect.options).map(option => option.value);
+            
+            // Remove song options that are no longer in the album
+            Array.from(trackSelect.options).forEach(option => {
+                if (!staticOptions.includes(option.value) && option.value !== 'new-song') {
+                    option.remove();
+                }
+            });
+            
+            // Add songs from album overview
+            data.forEach(song => {
+                const songTitle = song.title;
+                const trackTitle = `Track: ${songTitle}`;
+                // Only add if not already present
+                if (!currentOptions.includes(trackTitle)) {
+                    const option = document.createElement('option');
+                    option.value = trackTitle;
+                    option.textContent = trackTitle;
+                    // Insert before the "Create New Song" option
+                    trackSelect.insertBefore(option, trackSelect.lastElementChild);
+                }
+            });
+        }
+
+        // Sync offline entries when back online
+        function syncOfflineEntries() {
+            if (offlineEntries.length === 0) return;
+            
+            offlineEntries.forEach(entry => {
+                fetch('http://localhost:8082/save-entry', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(entry)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Synced offline entry:', data.message);
+                })
+                .catch(error => {
+                    console.error('Error syncing offline entry:', error);
+                });
+            });
+            
+            // Clear offline entries after sync
+            offlineEntries = [];
+            localStorage.removeItem('offlineEntries');
+            showStatus('✅ Offline entries synced successfully!', 'success');
         }
 
         // Git Functions
