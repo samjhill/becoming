@@ -427,11 +427,15 @@
             minor: ['Am', 'A#m', 'Bm', 'Cm', 'C#m', 'Dm', 'D#m', 'Em', 'Fm', 'F#m', 'Gm', 'G#m']
         };
 
+        let lastProgression = null;
+
         function generateProgression() {
             const key = document.getElementById('key').value;
             const mode = document.getElementById('mode').value;
             const progressionType = document.getElementById('progressionType').value;
             const chordCount = parseInt(document.getElementById('chordCount').value);
+            
+            console.log('Generating progression:', { key, mode, progressionType, chordCount });
 
             // Get available progressions for this type
             const availableProgressions = chordProgressions[mode][progressionType];
@@ -465,10 +469,19 @@
                 matchingProgressions = adaptedProgressions;
             }
 
-            // Pick a random progression with additional randomization
-            const randomSeed = Date.now() % 1000; // Add time-based randomization
-            const randomIndex = Math.floor((Math.random() + randomSeed / 1000) * matchingProgressions.length) % matchingProgressions.length;
-            const progression = matchingProgressions[randomIndex];
+            // Pick a random progression - simplified and more reliable
+            let progression;
+            let attempts = 0;
+            
+            do {
+                const randomIndex = Math.floor(Math.random() * matchingProgressions.length);
+                progression = matchingProgressions[randomIndex];
+                attempts++;
+            } while (JSON.stringify(progression) === JSON.stringify(lastProgression) && 
+                     attempts < 10 && matchingProgressions.length > 1);
+            
+            lastProgression = progression;
+            console.log('Selected progression:', progression, 'from', matchingProgressions.length, 'options');
             
             // Convert to actual chord names
             const keyIndex = chordNames.major.indexOf(key);
