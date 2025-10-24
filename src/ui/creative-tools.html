@@ -335,89 +335,134 @@
     </div>
 
     <script>
-        // Chord progression database
+        // Chord progression database - Music theory compliant
         const chordProgressions = {
             major: {
                 classic: [
-                    [1, 5, 6, 4], // I-V-vi-IV (very popular)
-                    [1, 6, 4, 5], // I-vi-IV-V
-                    [1, 4, 5, 1], // I-IV-V-I
-                    [6, 4, 1, 5], // vi-IV-I-V
+                    [1, 5, 6, 4], // I-V-vi-IV (authentic cadence with deceptive resolution)
+                    [1, 6, 4, 5], // I-vi-IV-V (plagal motion with authentic cadence)
+                    [1, 4, 5, 1], // I-IV-V-I (perfect authentic cadence)
+                    [6, 4, 1, 5], // vi-IV-I-V (deceptive to authentic)
+                    [1, 3, 6, 4], // I-iii-vi-IV (circle of fifths motion)
+                    [2, 5, 1, 6], // ii-V-I-vi (jazz turnaround)
                 ],
                 jazz: [
-                    [1, 6, 2, 5], // I-vi-ii-V
-                    [1, 3, 6, 2, 5, 1], // I-iii-vi-ii-V-I
-                    [2, 5, 1, 6], // ii-V-I-vi
+                    [1, 6, 2, 5], // I-vi-ii-V (classic jazz progression)
+                    [1, 3, 6, 2, 5, 1], // I-iii-vi-ii-V-I (extended circle of fifths)
+                    [2, 5, 1, 6], // ii-V-I-vi (jazz turnaround)
+                    [1, 6, 2, 5], // I-vi-ii-V (repeated for variation)
+                    [6, 2, 5, 1], // vi-ii-V-I (minor ii-V-I)
+                    [3, 6, 2, 5], // iii-vi-ii-V (minor key progression)
                 ],
                 pop: [
-                    [1, 5, 6, 4], // I-V-vi-IV
-                    [6, 1, 4, 5], // vi-I-IV-V
-                    [4, 5, 1, 6], // IV-V-I-vi
+                    [1, 5, 6, 4], // I-V-vi-IV (most popular progression)
+                    [6, 1, 4, 5], // vi-I-IV-V (relative minor start)
+                    [4, 5, 1, 6], // IV-V-I-vi (plagal to deceptive)
+                    [1, 6, 3, 4], // I-vi-iii-IV (smooth voice leading)
+                    [2, 4, 1, 5], // ii-IV-I-V (pre-dominant to dominant)
+                    [6, 4, 1, 5], // vi-IV-I-V (deceptive to authentic)
                 ],
                 blues: [
-                    [1, 1, 4, 1, 5, 4, 1, 5], // I-I-IV-I-V-IV-I-V
+                    [1, 1, 4, 1, 5, 4, 1, 5], // I-I-IV-I-V-IV-I-V (8-bar blues)
                     [1, 4, 1, 1, 4, 4, 1, 5, 4, 1, 5, 5], // 12-bar blues
+                    [1, 1, 1, 1, 4, 4, 1, 1, 5, 4, 1, 5], // 12-bar variation
+                    [1, 4, 1, 1, 4, 4, 1, 1, 5, 5, 1, 1], // 12-bar with extended V
                 ],
                 emotional: [
-                    [6, 4, 1, 5], // vi-IV-I-V
-                    [1, 6, 3, 4], // I-vi-iii-IV
-                    [6, 2, 4, 5], // vi-ii-IV-V
+                    [6, 4, 1, 5], // vi-IV-I-V (relative minor to major)
+                    [1, 6, 3, 4], // I-vi-iii-IV (smooth descending motion)
+                    [6, 2, 4, 5], // vi-ii-IV-V (minor ii-V-I setup)
+                    [6, 4, 2, 5], // vi-IV-ii-V (pre-dominant chain)
+                    [1, 6, 4, 5], // I-vi-IV-V (classic emotional)
+                    [6, 3, 4, 1], // vi-iii-IV-I (minor to major resolution)
                 ],
                 uplifting: [
-                    [1, 4, 5, 1], // I-IV-V-I
-                    [1, 5, 6, 4], // I-V-vi-IV
-                    [4, 1, 5, 6], // IV-I-V-vi
+                    [1, 4, 5, 1], // I-IV-V-I (perfect authentic cadence)
+                    [1, 5, 6, 4], // I-V-vi-IV (bright major progression)
+                    [4, 1, 5, 6], // IV-I-V-vi (plagal to deceptive)
+                    [1, 3, 4, 5], // I-iii-IV-V (ascending motion)
+                    [5, 1, 4, 1], // V-I-IV-I (authentic cadence with plagal)
+                    [1, 4, 6, 5], // I-IV-vi-V (major to relative minor)
                 ],
                 mysterious: [
-                    [6, 3, 4, 1], // vi-iii-IV-I
-                    [2, 6, 4, 5], // ii-vi-IV-V
-                    [6, 4, 2, 5], // vi-IV-ii-V
+                    [6, 3, 4, 1], // vi-iii-IV-I (minor to major with tension)
+                    [2, 6, 4, 5], // ii-vi-IV-V (pre-dominant chain)
+                    [6, 4, 2, 5], // vi-IV-ii-V (minor key progression)
+                    [3, 6, 2, 5], // iii-vi-ii-V (minor circle of fifths)
+                    [6, 2, 3, 6], // vi-ii-iii-vi (minor key oscillation)
+                    [2, 3, 6, 4], // ii-iii-vi-IV (chromatic motion)
                 ],
                 romantic: [
-                    [1, 6, 4, 5], // I-vi-IV-V
-                    [6, 4, 1, 5], // vi-IV-I-V
-                    [4, 6, 1, 5], // IV-vi-I-V
+                    [1, 6, 4, 5], // I-vi-IV-V (classic romantic)
+                    [6, 4, 1, 5], // vi-IV-I-V (relative minor start)
+                    [4, 6, 1, 5], // IV-vi-I-V (plagal motion)
+                    [1, 3, 6, 4], // I-iii-vi-IV (smooth voice leading)
+                    [6, 1, 4, 5], // vi-I-IV-V (minor to major)
+                    [4, 1, 6, 5], // IV-I-vi-V (plagal to deceptive)
                 ]
             },
             minor: {
                 classic: [
-                    [6, 4, 1, 5], // vi-IV-I-V (relative minor)
-                    [1, 5, 6, 4], // i-v-vi-IV
-                    [1, 4, 5, 1], // i-iv-v-i
+                    [6, 4, 1, 5], // vi-IV-I-V (relative minor to major)
+                    [1, 5, 6, 4], // i-v-vi-IV (minor authentic cadence with deceptive resolution)
+                    [1, 4, 5, 1], // i-iv-v-i (minor perfect authentic cadence)
+                    [6, 2, 5, 1], // vi-ii-V-i (minor ii-V-I)
+                    [1, 6, 4, 5], // i-vi-iv-v (minor plagal motion)
+                    [6, 4, 2, 5], // vi-iv-ii-V (minor pre-dominant chain)
                 ],
                 jazz: [
-                    [1, 6, 2, 5], // i-vi-ii-V
-                    [2, 5, 1, 6], // ii-V-i-vi
-                    [1, 3, 6, 2, 5, 1], // i-iii-vi-ii-V-i
+                    [1, 6, 2, 5], // i-vi-ii-V (minor jazz progression)
+                    [2, 5, 1, 6], // ii-V-i-vi (minor ii-V-I to relative major)
+                    [1, 3, 6, 2, 5, 1], // i-iii-vi-ii-V-i (extended minor circle of fifths)
+                    [6, 2, 5, 1], // vi-ii-V-i (minor ii-V-I)
+                    [1, 6, 2, 5], // i-vi-ii-V (classic minor jazz)
+                    [3, 6, 2, 5], // iii-vi-ii-V (minor key progression)
                 ],
                 pop: [
-                    [6, 4, 1, 5], // vi-IV-i-V
-                    [1, 5, 6, 4], // i-v-vi-IV
-                    [4, 5, 1, 6], // IV-v-i-vi
+                    [6, 4, 1, 5], // vi-IV-i-V (relative minor start)
+                    [1, 5, 6, 4], // i-v-vi-IV (minor authentic with deceptive resolution)
+                    [4, 5, 1, 6], // IV-v-i-vi (minor plagal to deceptive)
+                    [1, 6, 3, 4], // i-vi-iii-IV (minor smooth voice leading)
+                    [2, 4, 1, 5], // ii-iv-i-v (minor pre-dominant to dominant)
+                    [6, 4, 1, 5], // vi-iv-i-v (minor deceptive to authentic)
                 ],
                 blues: [
-                    [1, 1, 4, 1, 5, 4, 1, 5], // i-i-iv-i-v-iv-i-v
-                    [1, 4, 1, 1, 4, 4, 1, 5, 4, 1, 5, 5], // minor blues
+                    [1, 1, 4, 1, 5, 4, 1, 5], // i-i-iv-i-v-iv-i-v (minor 8-bar blues)
+                    [1, 4, 1, 1, 4, 4, 1, 5, 4, 1, 5, 5], // minor 12-bar blues
+                    [1, 1, 1, 1, 4, 4, 1, 1, 5, 4, 1, 5], // minor 12-bar variation
+                    [1, 4, 1, 1, 4, 4, 1, 1, 5, 5, 1, 1], // minor 12-bar with extended V
                 ],
                 emotional: [
-                    [1, 6, 4, 5], // i-vi-iv-v
-                    [6, 4, 1, 5], // vi-iv-i-v
-                    [1, 4, 6, 5], // i-iv-vi-v
+                    [1, 6, 4, 5], // i-vi-iv-v (minor emotional progression)
+                    [6, 4, 1, 5], // vi-iv-i-v (relative minor to major)
+                    [1, 4, 6, 5], // i-iv-vi-v (minor plagal motion)
+                    [6, 2, 4, 5], // vi-ii-iv-v (minor pre-dominant chain)
+                    [1, 6, 3, 4], // i-vi-iii-IV (minor smooth descending motion)
+                    [6, 3, 4, 1], // vi-iii-IV-i (minor to major resolution)
                 ],
                 uplifting: [
-                    [1, 4, 5, 1], // i-iv-v-i
-                    [4, 1, 5, 6], // IV-i-v-vi
-                    [1, 5, 6, 4], // i-v-vi-IV
+                    [1, 4, 5, 1], // i-iv-v-i (minor perfect authentic cadence)
+                    [4, 1, 5, 6], // IV-i-v-vi (minor plagal to deceptive)
+                    [1, 5, 6, 4], // i-v-vi-IV (minor authentic with deceptive resolution)
+                    [1, 3, 4, 5], // i-iii-iv-v (minor ascending motion)
+                    [5, 1, 4, 1], // v-i-iv-i (minor authentic with plagal)
+                    [1, 4, 6, 5], // i-iv-vi-v (minor to relative major)
                 ],
                 mysterious: [
-                    [1, 6, 4, 2], // i-vi-iv-ii
-                    [6, 4, 1, 5], // vi-iv-i-v
-                    [2, 6, 4, 5], // ii-vi-iv-v
+                    [1, 6, 4, 2], // i-vi-iv-ii (minor mysterious progression)
+                    [6, 4, 1, 5], // vi-iv-i-v (minor deceptive to authentic)
+                    [2, 6, 4, 5], // ii-vi-iv-v (minor pre-dominant chain)
+                    [3, 6, 2, 5], // iii-vi-ii-v (minor circle of fifths)
+                    [6, 2, 3, 6], // vi-ii-iii-vi (minor key oscillation)
+                    [2, 3, 6, 4], // ii-iii-vi-IV (minor chromatic motion)
                 ],
                 romantic: [
-                    [1, 6, 4, 5], // i-vi-iv-v
-                    [6, 4, 1, 5], // vi-iv-i-v
-                    [4, 6, 1, 5], // IV-vi-i-v
+                    [1, 6, 4, 5], // i-vi-iv-v (minor romantic progression)
+                    [6, 4, 1, 5], // vi-iv-i-v (relative minor start)
+                    [4, 6, 1, 5], // IV-vi-i-v (minor plagal motion)
+                    [1, 3, 6, 4], // i-iii-vi-IV (minor smooth voice leading)
+                    [6, 1, 4, 5], // vi-i-iv-v (relative minor to major)
+                    [4, 1, 6, 5], // IV-i-vi-v (minor plagal to deceptive)
                 ]
             }
         };
@@ -523,16 +568,16 @@
 
         function getProgressionInfo(type, mode) {
             const info = {
-                classic: `A timeless progression that works in almost any genre. Great for verses, choruses, and bridges.`,
-                jazz: `Sophisticated chord movement with rich harmonies. Perfect for jazz, fusion, and advanced arrangements.`,
-                pop: `Catchy and memorable progression that's been used in countless hit songs. Very radio-friendly.`,
-                blues: `Rooted in blues tradition with strong emotional expression. Great for soulful, expressive music.`,
-                emotional: `Designed to evoke deep feelings and create emotional impact. Perfect for ballads and intimate songs.`,
-                uplifting: `Energetic and positive progression that lifts the mood. Great for anthems and feel-good songs.`,
-                mysterious: `Creates intrigue and tension. Perfect for suspenseful moments or songs with darker themes.`,
-                romantic: `Sweet and tender progression perfect for love songs and romantic moments.`
+                classic: `Timeless progressions following traditional harmony principles. Features authentic cadences, circle of fifths motion, and smooth voice leading. Perfect for any genre.`,
+                jazz: `Sophisticated progressions with ii-V-I relationships, extended circle of fifths motion, and jazz harmony principles. Rich with substitutions and advanced chord movement.`,
+                pop: `Catchy progressions that balance familiarity with musical interest. Uses authentic and deceptive cadences effectively. Radio-friendly and memorable.`,
+                blues: `Authentic blues progressions with traditional 8-bar and 12-bar forms. Strong emphasis on I, IV, and V chords with characteristic blues harmony.`,
+                emotional: `Progressions designed for emotional impact using relative minor relationships, smooth voice leading, and expressive chord movement. Perfect for ballads.`,
+                uplifting: `Bright, positive progressions featuring major key harmony, authentic cadences, and ascending motion. Great for anthems and uplifting songs.`,
+                mysterious: `Intriguing progressions using minor key harmony, chromatic motion, and tension-building techniques. Creates suspense and darker moods.`,
+                romantic: `Sweet, tender progressions using smooth voice leading, plagal motion, and relative minor relationships. Perfect for love songs and intimate moments.`
             };
-            return info[type] || 'A beautiful progression to inspire your creativity!';
+            return info[type] || 'A musically sound progression to inspire your creativity!';
         }
 
         function randomizeKey() {
