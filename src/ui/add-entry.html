@@ -338,7 +338,6 @@
             </div>
             
             <div class="button-group" style="margin-top: 15px;">
-                <button class="btn-git" onclick="commitAndPush()">💾 Commit & Push to GitHub</button>
             </div>
         </div>
 
@@ -403,7 +402,9 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    showStatus(`✅ Entry saved to ${data.file_path}`, 'success');
+                    showStatus(`✅ Entry saved! Committing to GitHub...`, 'success');
+                    // Automatically commit and push to GitHub after saving
+                    commitAndPush();
                     clearForm();
                 } else {
                     showStatus(`❌ Error: ${data.message}`, 'error');
@@ -569,6 +570,11 @@
             offlineEntries = [];
             localStorage.removeItem('offlineEntries');
             showStatus('✅ Offline entries synced successfully!', 'success');
+            
+            // Commit and push the synced entries
+            setTimeout(() => {
+                commitAndPush();
+            }, 1000); // Small delay to ensure all entries are saved first
         }
 
         // Git Functions
