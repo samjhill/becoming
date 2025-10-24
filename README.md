@@ -1,6 +1,6 @@
-# 🎵 Becoming Album - Production Workflow
+# 🎵 Becoming: Focus on Making Music
 
-**"Trello for making an album"** - A music production workflow system for tracking your album progress, journaling sessions, and managing files.
+**"Trello for making an album"** - A music production workflow system that helps you focus on what matters: creating great music. Track progress, break through creative blocks, and organize your album production seamlessly.
 
 **Template Repository**: Fork this repo for each new album you create.  
 **Current Album**: [samjhill/becoming](https://github.com/samjhill/becoming)
