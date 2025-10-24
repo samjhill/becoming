@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creative Tools - Production Journal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+
+        .btn-back {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #6c757d;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-back:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .tool-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 2px solid #e9ecef;
+        }
+
+        .tool-title {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .chord-progression {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 2px solid #e9ecef;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .chord-progression h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .chords-display {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .chord {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: 600;
+            text-align: center;
+            min-width: 80px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .progression-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .progression-info h4 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .progression-info p {
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .status-message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-weight: 500;
+            display: none;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 20px;
+                max-width: 100%;
+            }
+            .form-row {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .button-group {
+                flex-direction: column;
+            }
+            .btn {
+                width: 100%;
+            }
+            .chords-display {
+                justify-content: center;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+            .chord {
+                padding: 12px 15px;
+                font-size: 1.1em;
+                min-width: 70px;
+            }
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="http://localhost:8082/" class="btn-back">← Back to Home</a>
+        
+        <h1>🎨 Creative Tools</h1>
+        <p style="text-align: center; color: #666; margin-bottom: 30px;">
+            Break through creative blocks with these production tools
+        </p>
+
+        <div class="tool-section">
+            <div class="tool-title">
+                🎵 Chord Progression Generator
+            </div>
+            <p style="color: #666; margin-bottom: 20px;">
+                Stuck on a chord progression? Let's generate some inspiration based on your key and mode!
+            </p>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="key">Key:</label>
+                    <select id="key">
+                        <option value="C">C</option>
+                        <option value="C#">C#</option>
+                        <option value="D">D</option>
+                        <option value="D#">D#</option>
+                        <option value="E">E</option>
+                        <option value="F">F</option>
+                        <option value="F#">F#</option>
+                        <option value="G">G</option>
+                        <option value="G#">G#</option>
+                        <option value="A">A</option>
+                        <option value="A#">A#</option>
+                        <option value="B">B</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="mode">Mode:</label>
+                    <select id="mode">
+                        <option value="major">Major</option>
+                        <option value="minor">Minor</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="progressionType">Progression Type:</label>
+                    <select id="progressionType">
+                        <option value="classic">Classic</option>
+                        <option value="jazz">Jazz</option>
+                        <option value="pop">Pop</option>
+                        <option value="blues">Blues</option>
+                        <option value="emotional">Emotional</option>
+                        <option value="uplifting">Uplifting</option>
+                        <option value="mysterious">Mysterious</option>
+                        <option value="romantic">Romantic</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="chordCount">Number of Chords:</label>
+                    <select id="chordCount">
+                        <option value="4">4 Chords</option>
+                        <option value="6">6 Chords</option>
+                        <option value="8">8 Chords</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="generateProgression()">🎵 Generate Progression</button>
+                <button class="btn btn-secondary" onclick="randomizeKey()">🎲 Random Key</button>
+            </div>
+
+            <div id="progressionResult"></div>
+        </div>
+
+        <div id="statusMessage" class="status-message"></div>
+    </div>
+
+    <script>
+        // Chord progression database
+        const chordProgressions = {
+            major: {
+                classic: [
+                    [1, 5, 6, 4], // I-V-vi-IV (very popular)
+                    [1, 6, 4, 5], // I-vi-IV-V
+                    [1, 4, 5, 1], // I-IV-V-I
+                    [6, 4, 1, 5], // vi-IV-I-V
+                ],
+                jazz: [
+                    [1, 6, 2, 5], // I-vi-ii-V
+                    [1, 3, 6, 2, 5, 1], // I-iii-vi-ii-V-I
+                    [2, 5, 1, 6], // ii-V-I-vi
+                ],
+                pop: [
+                    [1, 5, 6, 4], // I-V-vi-IV
+                    [6, 1, 4, 5], // vi-I-IV-V
+                    [4, 5, 1, 6], // IV-V-I-vi
+                ],
+                blues: [
+                    [1, 1, 4, 1, 5, 4, 1, 5], // I-I-IV-I-V-IV-I-V
+                    [1, 4, 1, 1, 4, 4, 1, 5, 4, 1, 5, 5], // 12-bar blues
+                ],
+                emotional: [
+                    [6, 4, 1, 5], // vi-IV-I-V
+                    [1, 6, 3, 4], // I-vi-iii-IV
+                    [6, 2, 4, 5], // vi-ii-IV-V
+                ],
+                uplifting: [
+                    [1, 4, 5, 1], // I-IV-V-I
+                    [1, 5, 6, 4], // I-V-vi-IV
+                    [4, 1, 5, 6], // IV-I-V-vi
+                ],
+                mysterious: [
+                    [6, 3, 4, 1], // vi-iii-IV-I
+                    [2, 6, 4, 5], // ii-vi-IV-V
+                    [6, 4, 2, 5], // vi-IV-ii-V
+                ],
+                romantic: [
+                    [1, 6, 4, 5], // I-vi-IV-V
+                    [6, 4, 1, 5], // vi-IV-I-V
+                    [4, 6, 1, 5], // IV-vi-I-V
+                ]
+            },
+            minor: {
+                classic: [
+                    [6, 4, 1, 5], // vi-IV-I-V (relative minor)
+                    [1, 5, 6, 4], // i-v-vi-IV
+                    [1, 4, 5, 1], // i-iv-v-i
+                ],
+                jazz: [
+                    [1, 6, 2, 5], // i-vi-ii-V
+                    [2, 5, 1, 6], // ii-V-i-vi
+                    [1, 3, 6, 2, 5, 1], // i-iii-vi-ii-V-i
+                ],
+                pop: [
+                    [6, 4, 1, 5], // vi-IV-i-V
+                    [1, 5, 6, 4], // i-v-vi-IV
+                    [4, 5, 1, 6], // IV-v-i-vi
+                ],
+                blues: [
+                    [1, 1, 4, 1, 5, 4, 1, 5], // i-i-iv-i-v-iv-i-v
+                    [1, 4, 1, 1, 4, 4, 1, 5, 4, 1, 5, 5], // minor blues
+                ],
+                emotional: [
+                    [1, 6, 4, 5], // i-vi-iv-v
+                    [6, 4, 1, 5], // vi-iv-i-v
+                    [1, 4, 6, 5], // i-iv-vi-v
+                ],
+                uplifting: [
+                    [1, 4, 5, 1], // i-iv-v-i
+                    [4, 1, 5, 6], // IV-i-v-vi
+                    [1, 5, 6, 4], // i-v-vi-IV
+                ],
+                mysterious: [
+                    [1, 6, 4, 2], // i-vi-iv-ii
+                    [6, 4, 1, 5], // vi-iv-i-v
+                    [2, 6, 4, 5], // ii-vi-iv-v
+                ],
+                romantic: [
+                    [1, 6, 4, 5], // i-vi-iv-v
+                    [6, 4, 1, 5], // vi-iv-i-v
+                    [4, 6, 1, 5], // IV-vi-i-v
+                ]
+            }
+        };
+
+        const chordNames = {
+            major: ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'],
+            minor: ['Am', 'A#m', 'Bm', 'Cm', 'C#m', 'Dm', 'D#m', 'Em', 'Fm', 'F#m', 'Gm', 'G#m']
+        };
+
+        function generateProgression() {
+            const key = document.getElementById('key').value;
+            const mode = document.getElementById('mode').value;
+            const progressionType = document.getElementById('progressionType').value;
+            const chordCount = parseInt(document.getElementById('chordCount').value);
+
+            // Get available progressions for this type
+            const availableProgressions = chordProgressions[mode][progressionType];
+            if (!availableProgressions) {
+                showStatus('No progression available for this type', 'error');
+                return;
+            }
+
+            // Filter progressions by chord count
+            const matchingProgressions = availableProgressions.filter(prog => prog.length === chordCount);
+            if (matchingProgressions.length === 0) {
+                // Use the first available progression and extend/reduce as needed
+                const baseProgression = availableProgressions[0];
+                let selectedProgression = baseProgression;
+                
+                if (chordCount > baseProgression.length) {
+                    // Extend by repeating pattern
+                    while (selectedProgression.length < chordCount) {
+                        selectedProgression = [...selectedProgression, ...baseProgression];
+                    }
+                    selectedProgression = selectedProgression.slice(0, chordCount);
+                } else if (chordCount < baseProgression.length) {
+                    // Reduce by taking first N chords
+                    selectedProgression = baseProgression.slice(0, chordCount);
+                }
+                
+                matchingProgressions.push(selectedProgression);
+            }
+
+            // Pick a random progression
+            const progression = matchingProgressions[Math.floor(Math.random() * matchingProgressions.length)];
+            
+            // Convert to actual chord names
+            const keyIndex = chordNames.major.indexOf(key);
+            const chords = progression.map(degree => {
+                const chordIndex = (keyIndex + degree - 1) % 12;
+                return mode === 'major' ? chordNames.major[chordIndex] : chordNames.minor[chordIndex];
+            });
+
+            // Display the result
+            displayProgression(chords, key, mode, progressionType);
+        }
+
+        function displayProgression(chords, key, mode, type) {
+            const resultDiv = document.getElementById('progressionResult');
+            
+            const chordElements = chords.map(chord => 
+                `<div class="chord">${chord}</div>`
+            ).join('');
+
+            const progressionInfo = getProgressionInfo(type, mode);
+
+            resultDiv.innerHTML = `
+                <div class="chord-progression">
+                    <h3>🎵 Your ${type.charAt(0).toUpperCase() + type.slice(1)} Progression in ${key} ${mode}</h3>
+                    <div class="chords-display">
+                        ${chordElements}
+                    </div>
+                    <div class="progression-info">
+                        <h4>💡 About this progression:</h4>
+                        <p>${progressionInfo}</p>
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-secondary" onclick="copyToClipboard('${chords.join(' - ')}')">📋 Copy Progression</button>
+                        <button class="btn btn-primary" onclick="generateProgression()">🎲 Generate Another</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getProgressionInfo(type, mode) {
+            const info = {
+                classic: `A timeless progression that works in almost any genre. Great for verses, choruses, and bridges.`,
+                jazz: `Sophisticated chord movement with rich harmonies. Perfect for jazz, fusion, and advanced arrangements.`,
+                pop: `Catchy and memorable progression that's been used in countless hit songs. Very radio-friendly.`,
+                blues: `Rooted in blues tradition with strong emotional expression. Great for soulful, expressive music.`,
+                emotional: `Designed to evoke deep feelings and create emotional impact. Perfect for ballads and intimate songs.`,
+                uplifting: `Energetic and positive progression that lifts the mood. Great for anthems and feel-good songs.`,
+                mysterious: `Creates intrigue and tension. Perfect for suspenseful moments or songs with darker themes.`,
+                romantic: `Sweet and tender progression perfect for love songs and romantic moments.`
+            };
+            return info[type] || 'A beautiful progression to inspire your creativity!';
+        }
+
+        function randomizeKey() {
+            const keys = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+            const randomKey = keys[Math.floor(Math.random() * keys.length)];
+            document.getElementById('key').value = randomKey;
+            
+            // Also randomize mode occasionally
+            if (Math.random() < 0.3) {
+                document.getElementById('mode').value = Math.random() < 0.5 ? 'major' : 'minor';
+            }
+            
+            showStatus(`🎲 Randomized to ${randomKey}`, 'success');
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showStatus('📋 Progression copied to clipboard!', 'success');
+            }).catch(() => {
+                showStatus('❌ Could not copy to clipboard', 'error');
+            });
+        }
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.textContent = message;
+            statusDiv.className = `status-message status-${type}`;
+            statusDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        // Auto-generate a progression on page load
+        window.onload = function() {
+            generateProgression();
+        };
+    </script>
+</body>
+</html>

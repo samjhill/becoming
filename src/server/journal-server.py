@@ -61,6 +61,8 @@ class JournalHandler(BaseHTTPRequestHandler):
             self.serve_read_entries_page()
         elif self.path == '/album-overview':
             self.serve_album_overview_page()
+        elif self.path == '/creative-tools':
+            self.serve_creative_tools_page()
         elif self.path == '/api/journal-files':
             self.list_journal_files()
         elif self.path.startswith('/api/journal-file/'):
@@ -147,6 +149,19 @@ class JournalHandler(BaseHTTPRequestHandler):
             self.wfile.write(content.encode())
         except FileNotFoundError:
             self.send_error(404, "Album overview page not found")
+
+    def serve_creative_tools_page(self):
+        """Serve the creative tools page"""
+        try:
+            with open('src/ui/creative-tools.html', 'r') as f:
+                content = f.read()
+            self.send_response(200)
+            self.send_header('Content-type', 'text/html')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(content.encode())
+        except FileNotFoundError:
+            self.send_error(404, "Creative tools page not found")
 
     def save_journal_entry(self):
         """Save a journal entry to the docs folder"""
