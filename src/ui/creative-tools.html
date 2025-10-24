@@ -441,28 +441,34 @@
             }
 
             // Filter progressions by chord count
-            const matchingProgressions = availableProgressions.filter(prog => prog.length === chordCount);
+            let matchingProgressions = availableProgressions.filter(prog => prog.length === chordCount);
+            
             if (matchingProgressions.length === 0) {
-                // Use the first available progression and extend/reduce as needed
-                const baseProgression = availableProgressions[0];
-                let selectedProgression = baseProgression;
-                
-                if (chordCount > baseProgression.length) {
-                    // Extend by repeating pattern
-                    while (selectedProgression.length < chordCount) {
-                        selectedProgression = [...selectedProgression, ...baseProgression];
+                // Use all available progressions and extend/reduce as needed
+                const adaptedProgressions = availableProgressions.map(baseProgression => {
+                    let selectedProgression = [...baseProgression];
+                    
+                    if (chordCount > baseProgression.length) {
+                        // Extend by repeating pattern
+                        while (selectedProgression.length < chordCount) {
+                            selectedProgression = [...selectedProgression, ...baseProgression];
+                        }
+                        selectedProgression = selectedProgression.slice(0, chordCount);
+                    } else if (chordCount < baseProgression.length) {
+                        // Reduce by taking first N chords
+                        selectedProgression = selectedProgression.slice(0, chordCount);
                     }
-                    selectedProgression = selectedProgression.slice(0, chordCount);
-                } else if (chordCount < baseProgression.length) {
-                    // Reduce by taking first N chords
-                    selectedProgression = baseProgression.slice(0, chordCount);
-                }
+                    
+                    return selectedProgression;
+                });
                 
-                matchingProgressions.push(selectedProgression);
+                matchingProgressions = adaptedProgressions;
             }
 
-            // Pick a random progression
-            const progression = matchingProgressions[Math.floor(Math.random() * matchingProgressions.length)];
+            // Pick a random progression with additional randomization
+            const randomSeed = Date.now() % 1000; // Add time-based randomization
+            const randomIndex = Math.floor((Math.random() + randomSeed / 1000) * matchingProgressions.length) % matchingProgressions.length;
+            const progression = matchingProgressions[randomIndex];
             
             // Convert to actual chord names
             const keyIndex = chordNames.major.indexOf(key);
